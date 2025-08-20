@@ -1,4 +1,4 @@
-package home.thienph.xyahoo_server;
+package home.thienph.xyahoo_server.managers;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
