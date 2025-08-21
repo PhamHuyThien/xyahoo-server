@@ -1,6 +1,6 @@
 package home.thienph.xyahoo_server.data.requests;
 
-import home.thienph.xyahoo_server.utils.ByteBufUtil;
+import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,10 +20,10 @@ public class LoginReq implements MappingRequestPayload<LoginReq> {
 
     @Override
     public LoginReq mapping(ByteBuf payload) {
-        this.userName = ByteBufUtil.readString(payload);
-        this.password = ByteBufUtil.readString(payload);
+        this.userName = XByteBuf.readString(payload);
+        this.password = XByteBuf.readString(payload);
         this.type = payload.readInt();
-        this.string = ByteBufUtil.readString(payload);
+        this.string = XByteBuf.readString(payload);
         return this;
     }
 }

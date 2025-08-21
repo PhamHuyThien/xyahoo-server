@@ -1,13 +1,12 @@
 package home.thienph.xyahoo_server.components;
 
-import home.thienph.xyahoo_server.commands.Command;
+import home.thienph.xyahoo_server.commands.CommandFactory;
 import home.thienph.xyahoo_server.data.base.Packet;
 import home.thienph.xyahoo_server.managers.ConnectionManager;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -17,12 +16,11 @@ import org.springframework.stereotype.Component;
 public class ServerHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Autowired
-    @Qualifier("UserCommand")
-    private Command command;
+    private CommandFactory commandFactory;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet packet) {
-        command.execute(ctx, packet);
+        commandFactory.getCommand(packet.getTypeId()).execute(ctx, packet);
     }
 
     @Override

@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class ByteBufUtil {
+public class XByteBuf {
 
     public String readString(ByteBuf buf) {
         // Bước 1: đọc số ký tự

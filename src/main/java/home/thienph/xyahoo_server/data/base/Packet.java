@@ -13,8 +13,12 @@ import lombok.ToString;
 @ToString
 public class Packet {
     int commandId;
-    int typeId;
-    ByteBuf payload = Unpooled.buffer(0);
+    int typeId = 1;
+    ByteBuf payload = Unpooled.buffer();
+
+    public Packet(int commandId) {
+        this.commandId = commandId;
+    }
 
     public Packet(int commandId, int typeId) {
         this.commandId = commandId;
