@@ -1,171 +1,115 @@
 package home.thienph.xyahoo_server.services;
 
 import home.thienph.xyahoo_server.data.base.Packet;
-import home.thienph.xyahoo_server.data.friends.ContactGroup;
-import home.thienph.xyahoo_server.data.friends.ContactInfo;
-import home.thienph.xyahoo_server.utils.XByteBuf;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import home.thienph.xyahoo_server.data.builder.PacketPipeline;
+import home.thienph.xyahoo_server.data.builder.packet.CacheImagePacket;
+import home.thienph.xyahoo_server.data.builder.packet.GameProcessPacketPipeline;
+import home.thienph.xyahoo_server.data.builder.packet.game_process.DialogWrapTextFactory;
+import home.thienph.xyahoo_server.data.builder.packet.game_process.FocusComponentFactory;
+import home.thienph.xyahoo_server.data.builder.packet.game_process.NewDialogFactory;
+import home.thienph.xyahoo_server.data.builder.packet.game_process.UIComponentFactory;
+import home.thienph.xyahoo_server.data.builder.packet.game_process.ui_component.*;
+import home.thienph.xyahoo_server.data.friends.BuddyInfo;
+import home.thienph.xyahoo_server.data.resources.ImageInfo;
+import home.thienph.xyahoo_server.utils.XImage;
 import io.netty.channel.ChannelHandlerContext;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class SimulatorService {
 
-    public void danhSachBanTLMN(ChannelHandlerContext ctx) {
-        Packet packet = new Packet(5000009);
-        ByteBuf payload = packet.getPayload();
-
-        List<ContactInfo> contactInfos = new ArrayList<>();
-        contactInfos.add(new ContactInfo("CongCkuaBeB0ng", "bbContact1user1", 1, "Online", true, new int[]{1, 2}, 4, 1, 1, 1));
-        contactInfos.add(new ContactInfo("HoangTuCuaE", "bbContact1user1", 1, "Online", false, new int[]{1, 2}, 4, 1, 1, 1));
-        contactInfos.add(new ContactInfo("Song Thanh", "bbContact1user1", 2, "Online", true, new int[]{1, 2}, 4, 1, 1, 1));
-        contactInfos.add(new ContactInfo("Pham Huy Thien", "bbContact1user2", 2, "Online", true, new int[]{1, 2}, 4, 1, 1, 1));
-
-        payload.writeInt(contactInfos.size());
-        for (ContactInfo contactInfo : contactInfos) {
-            XByteBuf.writeString(payload, contactInfo.getDisplayName());
-            XByteBuf.writeString(payload, contactInfo.getContactId());
-            XByteBuf.writeString(payload, contactInfo.getDisplayName());
-            payload.writeInt(contactInfo.getRoomId());
-        }
-
-        ctx.writeAndFlush(packet);
-
+    @SneakyThrows
+    public void cacheImageData(ChannelHandlerContext ctx) {
+        PacketPipeline packetPipeline = new PacketPipeline();
+        packetPipeline.addPipeline(new CacheImagePacket(100, "data/images/Icn0.png"));
+        packetPipeline.addPipeline(new CacheImagePacket(101, "data/images/Icn1.png"));
+        packetPipeline.addPipeline(new CacheImagePacket(102, "data/images/Icn2.png"));
+        packetPipeline.addPipeline(new CacheImagePacket(103, "data/images/Icn3.png"));
+        packetPipeline.endPipeline();
+        packetPipeline.flushPipeline(ctx);
     }
-    public void handleGameChat(ChannelHandlerContext ctx) {
-        Packet packet = new Packet(3411);
-        XByteBuf.writeString(packet.getPayload(), "");
-        XByteBuf.writeString(packet.getPayload(), "123");
-        XByteBuf.writeString(packet.getPayload(), "132443");
+
+    public void loadCache(ChannelHandlerContext ctx) {
+        Packet packet = new Packet(122);
+        packet.getPayload().writeInt(100);
+        packet.getPayload().writeInt(1);
         ctx.writeAndFlush(packet);
     }
 
-    public void listFriend(ChannelHandlerContext ctx) {
-        Packet packet = new Packet(1045);
-        ByteBuf payload = packet.getPayload();
+    @SneakyThrows
+    public void processData(ChannelHandlerContext ctx) {
+//        loadCache(ctx);
 
-        List<ContactInfo> contactInfos = new ArrayList<>();
-        contactInfos.add(new ContactInfo("CongCkuaBeB0ng", "bbContact1user1", 1, "Online", true, new int[]{1, 2}, 4, 1, 1, 1));
-        contactInfos.add(new ContactInfo("HoangTuCuaE", "bbContact1user1", 1, "Online", false, new int[]{1, 2}, 4, 1, 1, 1));
-        contactInfos.add(new ContactInfo("Song Thanh", "bbContact1user1", 2, "Online", true, new int[]{1, 2}, 4, 1, 1, 1));
-        contactInfos.add(new ContactInfo("Pham Huy Thien", "bbContact1user2", 2, "Online", true, new int[]{1, 2}, 4, 1, 1, 1));
+        cacheImageData(ctx);
+//        Thread.sleep(100000000);
 
-
-        payload.writeInt(1);
-        payload.writeInt(contactInfos.size());
-        for (ContactInfo contactInfo : contactInfos) {
-            XByteBuf.writeString(payload, contactInfo.getDisplayName());
-            XByteBuf.writeString(payload, contactInfo.getContactId());
-            payload.writeShort(contactInfo.getRoomId());
-        }
-
-        ctx.writeAndFlush(packet);
-    }
-
-    public void listFriendYahoo(ChannelHandlerContext ctx) {
-        List<ContactGroup> contactGroups = new ArrayList<>();
-        contactGroups.add(new ContactGroup("Bạn bè"));
-        contactGroups.add(new ContactGroup("Nhóm chat"));
-        contactGroups.add(new ContactGroup("Chuyên gia"));
-
-        contactGroups.get(0).contacts.add(new ContactInfo("bbContact1user1", "bbContact1user1", 2, "Online", true, new int[]{1, 2}, 1, 1, 1, 1));
-        contactGroups.get(0).contacts.add(new ContactInfo("bbContact1user2", "bbContact1user2", 2, "Online", false, new int[]{1, 2}, 1, 1, 1, 1));
-        contactGroups.get(0).contacts.add(new ContactInfo("bbContact1user3", "bbContact1user3", 1, "Online", false, new int[]{1, 2}, 1, 1, 1, 1));
-        contactGroups.get(0).contacts.add(new ContactInfo("bbContact1user4", "bbContact1user4", 1, "Online", false, new int[]{1, 2}, 1, 1, 1, 1));
-
-        contactGroups.get(1).contacts.add(new ContactInfo("bbContact2user1", "bbContact2user1", 1, "Online", true, new int[]{1, 2}, 1, 1, 1, 1));
-        contactGroups.get(1).contacts.add(new ContactInfo("bbContact2user2", "bbContact2user2", 1, "Online", false, new int[]{1, 2}, 1, 1, 1, 1));
-        contactGroups.get(1).contacts.add(new ContactInfo("bbContact2user3", "bbContact2user3", 1, "Online", false, new int[]{1, 2}, 1, 1, 1, 1));
-        contactGroups.get(1).contacts.add(new ContactInfo("bbContact2user4", "bbContact2user4", 1, "Online", false, new int[]{1, 2}, 1, 1, 1, 1));
-
-        contactGroups.get(2).contacts.add(new ContactInfo("bbContact3user1", "bbContact3user1", 1, "Online", true, new int[]{1, 2}, 1, 1, 1, 1));
-        contactGroups.get(2).contacts.add(new ContactInfo("bbContact3user2", "bbContact3user2", 1, "Online", false, new int[]{1, 2}, 1, 1, 1, 1));
-        contactGroups.get(2).contacts.add(new ContactInfo("bbContact3user3", "bbContact3user3", 1, "Online", false, new int[]{1, 2}, 1, 1, 1, 1));
-        contactGroups.get(2).contacts.add(new ContactInfo("bbContact3user4", "bbContact3user4", 1, "Online", false, new int[]{1, 2}, 1, 1, 1, 1));
-
-        Packet packet = new Packet(6, 2);
-        ByteBuf payload = packet.getPayload();
-
-        payload.writeInt(contactGroups.size());
-        for (ContactGroup contactGroup : contactGroups) {
-            XByteBuf.writeString(payload, contactGroup.getGroupName());
-            payload.writeInt(contactGroup.contacts.size());
-            for (ContactInfo contactInfo : contactGroup.contacts) {
-                XByteBuf.writeString(payload, contactInfo.contactId);
-                payload.writeInt(contactInfo.statusCode);
-                XByteBuf.writeString(payload, contactInfo.statusMessage);
-                XByteBuf.writeString(payload, "");
-                XByteBuf.writeString(payload, contactInfo.displayName);
-                XByteBuf.writeString(payload, "");
-            }
-        }
-        ctx.writeAndFlush(packet);
-
-    }
-
-    public void loginYahooSuccess(ChannelHandlerContext ctx) {
-        Packet packet = new Packet(-5, 2);
-        ctx.writeAndFlush(packet);
-    }
-
-    public void moiVaoPhongChat(ChannelHandlerContext ctx) {
-        Packet packet = new Packet(1006);
-        XByteBuf.writeString(packet.getPayload(), "0001");
-        XByteBuf.writeString(packet.getPayload(), "0002");
-        XByteBuf.writeString(packet.getPayload(), "0003");
-        ctx.writeAndFlush(packet);
-    }
-
-    public void buzz(ChannelHandlerContext ctx) {
-        Packet packet = new Packet(27);
-        XByteBuf.writeString(packet.getPayload(), "X Yahoo!");
-        XByteBuf.writeString(packet.getPayload(), "X Yahoo!");
-        ctx.writeAndFlush(packet);
-    }
+        PacketPipeline packetPipeline = new PacketPipeline();
 
 
-    public void moiVaoPhong(ChannelHandlerContext ctx) {
-        Packet packet = new Packet(1001);
-        XByteBuf.writeString(packet.getPayload(), "0001");
-        XByteBuf.writeString(packet.getPayload(), "Phòng 1");
-        ctx.writeAndFlush(packet);
-    }
+        GameProcessPacketPipeline gameProcessPacketPipeline = GameProcessPacketPipeline.newInstance();
+        gameProcessPacketPipeline.addPipeline(new NewDialogFactory("Màn hình chính", 11111, true));
 
-    public void outputLoginSuccess(ChannelHandlerContext ctx) {
-        Packet packet = new Packet(-5, 1);
-        ctx.writeAndFlush(packet);
-    }
+//        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 1, new TextInputComponent("Nhap ten cua ban", 20, 20, (byte) 0)));
+//        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 2, new TextComponent("Phạm huy Thiên", 200, 16726823, (byte) 0)));
+//        gameProcessPacketPipeline.addPipeline(new FocusComponentFactory(11111, 1));
+//
+//        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 4, new SimpleTextComponent("cháu lên 3 chasu di mau giao co thuong chau vi chau hay khoc nhe, hay khoc nhe de me trong cay trai", 0)));
+//
+//        GameProcessPacketPipeline textLinkAction = GameProcessPacketPipeline.newInstance()
+//                .addPipeline(new DialogWrapTextFactory("Phạm huy thiên dz "));
+//        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 3, new TextLinkComponent(" bấm vào đây", 200, 16726823, textLinkAction)));
+//
+//        ImageInfo imageInfo = XImage.parseImageInfo(Path.of("data/images/Icn1.png"));
+//        GameProcessPacketPipeline imageAction = GameProcessPacketPipeline.newInstance()
+//                .addPipeline(new DialogWrapTextFactory("Phạm huy thiên dz "));
+//        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 5, new ImageSourceComponent(100, imageInfo.getWidth(), imageInfo.getHeight(), true, true, "bam vao day", imageAction, (byte) 5)));
 
-    public void showPopupDialog(ChannelHandlerContext ctx) {
-        Packet packet = new Packet(29);
+//        GameProcessPipeline imageAction = GameProcessPipeline.newInstance()
+//                        .addPipeline(new DialogWrapTextFactory("Phạm huy thiên dz "));
+//        byte[] images = Files.readAllBytes(Path.of("data/images/Icn1.png"));
+//        gameProcessPipeline.addPipeline(new UIComponentFactory(11111, 5, new ImageDataComponent(images, 200, 200, true, true, "bam vao day", imageAction, (byte) 0)));
 
-        ByteBuf payload = Unpooled.buffer();
+//        GameProcessPacketPipeline dropDownAction = GameProcessPacketPipeline.newInstance()
+//                .addPipeline(new DialogWrapTextFactory("Phạm huy thiên dz change"));
+//        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 6, new DropdownComponent("dropdown đẹp không", 0, List.of("lua chon 1", "lua chon 2", "lua chon 3"), dropDownAction, 0, (byte) 0)));
 
-        // btn left
-        XByteBuf.writeString(payload, "menu");
-        // data btn left
-        ByteBuf btnLeft = Unpooled.buffer();
-        btnLeft.writeInt(4);
-        XByteBuf.writeString(btnLeft, "String 1");
-        btnLeft.writeInt(1);
-        btnLeft.writeBoolean(true);
-        XByteBuf.writeByteArray(payload, btnLeft.array());
+//        gameProcessPipeline.addPipeline(new UIComponentFactory(11111, 4, new SimpleTextComponent("cháu lên 3 chasu di mau giao co thuong chau vi chau hay khoc nhe, hay khoc nhe de me trong cay trai", 0)));
 
-        //btn center
-        XByteBuf.writeString(payload, "OK");
-        // data btn center
-        XByteBuf.writeByteArray(payload, new byte[0]);
+//        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 7, new MultiImageComponent(List.of(100, 101, 102), imageInfo.getWidth(), imageInfo.getHeight(), true, true, "click name", GameProcessPacketPipeline.newInstance(), (byte) 0)));
+//
+//        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 8, new LabelComponent("labelday nhe", 16726823, (byte) 0)));
 
-        //btn right
-        XByteBuf.writeString(payload, "Cancel");
-        // data btn right
-        XByteBuf.writeByteArray(payload, new byte[0]);
+//        List<Grid> grids = new ArrayList<>();
+//        grids.add(new Grid("grid 1", 1, 100, false));
+//        grids.add(new Grid("grid 2", 2, 101, false));
+//        grids.add(new Grid("grid 3", 3, 102, false));
+//        grids.add(new Grid("grid 4", 4, 103, false));
+//        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 8, new GridComponent(40, 40, false, grids, GameProcessPacketPipeline.newInstance())));
 
-        packet.setPayload(payload);
-        ctx.writeAndFlush(packet);
+//        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 9, new CheckBoxComponent("checked hihi", false, (byte) 0)));
+//
+//        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 10, new PopupDialogComponent("popup day nhe", (byte) 0, GameProcessPacketPipeline.newInstance())));
+//        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 10, new ButtonComponent("buttone", 100, GameProcessPacketPipeline.newInstance())));
+
+        List<BuddyInfo> buddyInfoList = new ArrayList<>();
+        byte[] images = Files.readAllBytes(Path.of("data/images/Stat1.png"));
+        buddyInfoList.add(new BuddyInfo("grA", "displayA", "fileName A", "dltext1", 100, images, 2, "description A"));
+        buddyInfoList.add(new BuddyInfo("grA", "displayB", "fileName B", "dltext2", 100, images, 0, "description B"));
+        buddyInfoList.add(new BuddyInfo("grC", "displayC", "fileName C", "dltext3", 100, images, 3, "description C"));
+        buddyInfoList.add(new BuddyInfo("grD", "displayD", "fileName D", "dltext4", 100, images, 1, "description D"));
+        gameProcessPacketPipeline.addPipeline(new UIComponentFactory(11111, 11, new ListComponent(true, (byte) 0, (byte) 3, 10, 10, (byte) 1, buddyInfoList, GameProcessPacketPipeline.newInstance())));
+
+        gameProcessPacketPipeline.endPipeline();
+
+        packetPipeline.addPipeline(gameProcessPacketPipeline);
+        packetPipeline.endPipeline();
+
+        packetPipeline.flushPipeline(ctx);
     }
 }

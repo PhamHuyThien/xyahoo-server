@@ -3,7 +3,9 @@ package home.thienph.xyahoo_server.commands;
 import home.thienph.xyahoo_server.constants.ClientCommandConst;
 import home.thienph.xyahoo_server.data.base.Packet;
 import home.thienph.xyahoo_server.data.requests.LoginReq;
+import home.thienph.xyahoo_server.data.requests.ReqReloadDataReq;
 import home.thienph.xyahoo_server.services.AuthService;
+import home.thienph.xyahoo_server.services.ResourceService;
 import home.thienph.xyahoo_server.services.SimulatorService;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.SneakyThrows;
@@ -20,6 +22,9 @@ public class XYahooCommand implements Command {
     AuthService authService;
 
     @Autowired
+    ResourceService resourceService;
+
+    @Autowired
     SimulatorService simulatorService;
 
     @Override
@@ -34,17 +39,21 @@ public class XYahooCommand implements Command {
                 break;
             case ClientCommandConst.LOGIN_YAHOO:
 //                simulatorService.loginYahooSuccess(ctx);
-                simulatorService.listFriendYahoo(ctx);
+//                simulatorService.listFriendYahoo(ctx);
                 break;
             case 5018:
 //                simulatorService.showPopupDialog(ctx);
 //                simulatorService.moiVaoPhong(ctx);
 //                simulatorService.buzz(ctx);
-                simulatorService.moiVaoPhongChat(ctx);
-                Thread.sleep(3000);
-                simulatorService.danhSachBanTLMN(ctx);
+//                simulatorService.moiVaoPhongChat(ctx);
+//                Thread.sleep(3000);
+//                simulatorService.danhSachBanTLMN(ctx);
 //                simulatorService.listFriend(ctx);
 //                simulatorService.handleGameChat(ctx);
+//                simulatorService.processData(ctx);
+            case 123:
+                ReqReloadDataReq req = new ReqReloadDataReq().mapping(packet.getPayload());
+                resourceService.reqReloadData(ctx, req);
                 break;
         }
     }
