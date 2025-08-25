@@ -38,7 +38,7 @@ public class ResourceService {
     @SneakyThrows
     public void loadResource(Channel ctx) {
         PacketPipeline.newInstance()
-                .addPipeline(new CacheImagePacket(ScreenConstant.FRIEND_SCREEN_ID, "data/images/Icn0.png"))
+                .addPipeline(new CacheImagePacket(101, "data/images/Icn0.png"))
                 .addPipeline(new CacheImagePacket(101, "data/images/Icn1.png"))
                 .addPipeline(new CacheImagePacket(102, "data/images/Icn2.png"))
                 .addPipeline(new CacheImagePacket(103, "data/images/Icn3.png"))
