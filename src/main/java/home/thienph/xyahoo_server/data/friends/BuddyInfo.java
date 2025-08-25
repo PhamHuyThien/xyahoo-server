@@ -15,28 +15,36 @@ public final class BuddyInfo {
     public String displayName;
     public int statusCode; //0 xanh, 1 vang, 2 do
     public String statusDescription;
-    public int downloadType;
+    public int mediaType;
     public String description;
     public boolean isSelected;
-    public String fileName;
+    public String mediaExtension;
     private int[] rawDataArray;
+    public Integer[] processedDataArray;
+    public byte[] mediaData;
+    public int dataSize;
+    public long contactId;
+    public Integer imageSourceId;
+    private final int defaultColor = 16777215;
+    public byte[] thumbnailImage;
 
-    public BuddyInfo(String groupName, String displayName, String fileName, String description, Integer imageSourceId, byte[] imageBytes, int statusCode, String statusDescription) {
+    public BuddyInfo(String groupName, String displayName, String mediaExtension, String description, Integer imageSourceId, byte[] mediaData, int statusCode, String statusDescription) {
         this.groupName = groupName;
         this.displayName = displayName;
-        this.fileName = fileName;
+        this.mediaExtension = mediaExtension;
         this.description = description;
         this.imageSourceId = imageSourceId;
-        this.imageBytes = imageBytes;
+        this.mediaData = mediaData;
         this.statusCode = statusCode;
         this.statusDescription = statusDescription;
     }
 
-    public Integer[] processedDataArray;
-    public byte[] imageBytes;
-    public int dataSize;
-    public long timestamp;
-    public Integer imageSourceId;
-    private final int defaultColor = 16777215;
-    public byte[] thumbnailImage;
+
+    public BuddyInfo(String description, String username, long contactId) {
+        this.description = description;
+        this.username = username;
+        this.contactId = contactId;
+    }
+
+
 }

@@ -42,7 +42,7 @@ public class ListComponent extends AComponent {
         payload.writeInt(buddyInfoList.size());
         for (BuddyInfo buddyInfo : buddyInfoList) {
             XByteBuf.writeString(payload, buddyInfo.getGroupName());
-            XByteBuf.writeString(payload, buddyInfo.getFileName());
+            XByteBuf.writeString(payload, buddyInfo.getMediaExtension());
             XByteBuf.writeString(payload, buddyInfo.getDisplayName());
             if (enableDescription == 1) {
                 XByteBuf.writeString(payload, buddyInfo.getDescription());
@@ -50,7 +50,7 @@ public class ListComponent extends AComponent {
             if (iconType == 2) {
                 payload.writeInt(buddyInfo.getImageSourceId());
             } else if (iconType == 3) {
-                XByteBuf.writeByteArray(payload, buddyInfo.getImageBytes());
+                XByteBuf.writeByteArray(payload, buddyInfo.getMediaData());
             }
             if (enableStatusIcon == 1) {
                 payload.writeByte(buddyInfo.getStatusCode());
