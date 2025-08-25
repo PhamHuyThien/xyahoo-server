@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Builder
-public class UIComponentFactory implements IGameProcessPacketPipeline {
+public class UIComponentProcess implements IGameProcessPacketPipeline {
     int dialogId;
     int componentId;
     AComponent component;

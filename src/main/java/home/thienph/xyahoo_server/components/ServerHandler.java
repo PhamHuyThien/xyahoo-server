@@ -1,8 +1,9 @@
 package home.thienph.xyahoo_server.components;
 
-import home.thienph.xyahoo_server.commands.CommandFactory;
+import home.thienph.xyahoo_server.configs.PacketHandlerRegistry;
 import home.thienph.xyahoo_server.data.base.Packet;
-import home.thienph.xyahoo_server.managers.ConnectionManager;
+import home.thienph.xyahoo_server.data.users.UserContext;
+import home.thienph.xyahoo_server.managers.GameManager;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -16,30 +17,33 @@ import org.springframework.stereotype.Component;
 public class ServerHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Autowired
-    private CommandFactory commandFactory;
+    PacketHandlerRegistry packetHandlerRegistry;
+
+    @Autowired
+    GameManager gameManager;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet packet) {
-        commandFactory.getCommand(packet.getTypeId()).execute(ctx, packet);
+        packetHandlerRegistry.handle(ctx, packet);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        String channelId = ctx.channel().id().asShortText();
-        ConnectionManager.addConnection(channelId, ctx);
-        log.debug("Client connected: {}", channelId);
+        gameManager.getUserContexts().put(ctx.channel(), new UserContext());
+        log.debug("Client connected: {}", ctx.channel().remoteAddress());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        String channelId = ctx.channel().id().asShortText();
-        ConnectionManager.removeConnection(channelId);
-        log.debug("Client disconnected: {}", channelId);
+        gameManager.getUserContexts().get(ctx.channel()).destroy();
+        gameManager.getUserContexts().remove(ctx.channel());
+        log.debug("Client disconnected: {}", ctx.channel().remoteAddress());
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("Client disconnected: {}", ctx.channel().remoteAddress(), cause);
+        gameManager.getUserContexts().get(ctx.channel()).destroy();
         ctx.close();
+        log.debug("Client disconnected: {}", ctx.channel().remoteAddress(), cause);
     }
 }

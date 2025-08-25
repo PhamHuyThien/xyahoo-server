@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Slf4j
-public abstract class NettyServer {
+public abstract class NettyServerConfig {
 
     @Value("${server.netty.port}")
     private int serverNettyPort;
@@ -49,7 +49,7 @@ public abstract class NettyServer {
         });
         ChannelFuture future = bootstrap.bind(serverNettyPort).sync();
         serverChannel = future.channel();
-        log.info(" Netty TCP Server started on port {} 🚀", serverNettyPort);
+        log.info("Netty TCP Server started on port {} 🚀", serverNettyPort);
     }
 
     @PreDestroy

@@ -21,5 +21,5 @@ public abstract class APacketPipeline {
         this.packet = packet;
     }
 
-    protected abstract void action();
+    protected abstract APacketPipeline build();
 }

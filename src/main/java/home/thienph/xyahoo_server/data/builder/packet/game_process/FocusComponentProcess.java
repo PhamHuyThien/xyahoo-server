@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
-public class FocusComponentFactory implements IGameProcessPacketPipeline {
+public class FocusComponentProcess implements IGameProcessPacketPipeline {
     int screenId;
     int componentId;
 

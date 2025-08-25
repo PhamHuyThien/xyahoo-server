@@ -19,8 +19,9 @@ public class CacheImagePacket extends APacketPipeline {
 
     @Override
     @SneakyThrows
-    protected void action() {
+    protected CacheImagePacket build() {
         packet.getPayload().writeInt(sourceId);
         XByteBuf.writeByteArray(packet.getPayload(), Files.readAllBytes(Path.of(pathImage)));
+        return this;
     }
 }

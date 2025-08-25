@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DialogWrapTextFactory implements IGameProcessPacketPipeline {
+public class DialogWrapTextProcess implements IGameProcessPacketPipeline {
     String text;
 
     @Override
