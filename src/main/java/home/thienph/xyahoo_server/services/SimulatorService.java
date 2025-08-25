@@ -1,12 +1,11 @@
 package home.thienph.xyahoo_server.services;
 
 import home.thienph.xyahoo_server.data.base.Packet;
-import home.thienph.xyahoo_server.data.builder.PacketPipeline;
-import home.thienph.xyahoo_server.data.builder.packet.CacheImagePacket;
-import home.thienph.xyahoo_server.data.builder.packet.GameProcessPacketPipeline;
-import home.thienph.xyahoo_server.data.builder.packet.game_process.NewDialogProcess;
-import home.thienph.xyahoo_server.data.builder.packet.game_process.UIComponentProcess;
-import home.thienph.xyahoo_server.data.builder.packet.game_process.ui_component.*;
+import home.thienph.xyahoo_server.data.mapping.PacketPipeline;
+import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
+import home.thienph.xyahoo_server.data.mapping.packet.game_process.NewDialogProcess;
+import home.thienph.xyahoo_server.data.mapping.packet.game_process.UIComponentProcess;
+import home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component.*;
 import home.thienph.xyahoo_server.data.friends.BuddyInfo;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;

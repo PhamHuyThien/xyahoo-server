@@ -1,8 +1,9 @@
 package home.thienph.xyahoo_server.services;
 
+import home.thienph.xyahoo_server.constants.ScreenConstant;
 import home.thienph.xyahoo_server.data.base.Packet;
-import home.thienph.xyahoo_server.data.builder.PacketPipeline;
-import home.thienph.xyahoo_server.data.builder.packet.CacheImagePacket;
+import home.thienph.xyahoo_server.data.mapping.PacketPipeline;
+import home.thienph.xyahoo_server.data.mapping.packet.CacheImagePacket;
 import home.thienph.xyahoo_server.data.requests.ReqReloadDataReq;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.channel.Channel;
@@ -37,7 +38,7 @@ public class ResourceService {
     @SneakyThrows
     public void loadResource(Channel ctx) {
         PacketPipeline.newInstance()
-                .addPipeline(new CacheImagePacket(100, "data/images/Icn0.png"))
+                .addPipeline(new CacheImagePacket(ScreenConstant.FRIEND_SCREEN_ID, "data/images/Icn0.png"))
                 .addPipeline(new CacheImagePacket(101, "data/images/Icn1.png"))
                 .addPipeline(new CacheImagePacket(102, "data/images/Icn2.png"))
                 .addPipeline(new CacheImagePacket(103, "data/images/Icn3.png"))

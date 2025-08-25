@@ -11,7 +11,7 @@ import lombok.ToString;
 @ToString
 public class Grid {
     String text;
-    int dataId;
+    int actionId;
     int imageId;
     boolean checked;
 }

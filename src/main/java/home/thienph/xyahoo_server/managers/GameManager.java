@@ -1,5 +1,6 @@
 package home.thienph.xyahoo_server.managers;
 
+import home.thienph.xyahoo_server.constants.ScreenConstant;
 import home.thienph.xyahoo_server.data.resources.Grid;
 import home.thienph.xyahoo_server.data.users.UserContext;
 import io.netty.channel.Channel;
@@ -23,9 +24,9 @@ public class GameManager {
     @PostConstruct
     public void init() {
         log.info("Init game manager...");
-        homeGrids.add(new Grid("Bạn Bè", 1, 100, false));
+        homeGrids.add(new Grid("Bạn Bè", ScreenConstant.FRIEND_SCREEN_ID, 100, false));
         homeGrids.add(new Grid("+4 Phương", 2, 101, false));
-        homeGrids.add(new Grid("Yahoo!", 3, 102, false));
+        homeGrids.add(new Grid("Yahoo!", ScreenConstant.YAHOO_SCREEN_ID, 102, false));
         homeGrids.add(new Grid("Hồ Sơ", 4, 103, false));
         homeGrids.add(new Grid("Tiền", 4, 103, false));
         homeGrids.add(new Grid("Shop", 4, 103, false));
