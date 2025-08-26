@@ -26,9 +26,10 @@ public class UserController {
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.USER_LIST)
-    public void getUserList(Channel channel, Packet packet) {
-        userService.getUserFriendList(channel);
-        userService.updateStatusFriend(channel);
+    public void getUserFriendList(Channel channel, Packet packet) {
+        int type = packet.getPayload().readInt();
+        userService.getUserFriendList(channel, type);
+        userService.updateStatusFriend(channel, type);
     }
 
     @SneakyThrows

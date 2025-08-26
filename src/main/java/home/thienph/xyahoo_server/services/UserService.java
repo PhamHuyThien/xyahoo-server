@@ -33,16 +33,15 @@ public class UserService {
     @Autowired
     private UsersFriendRepo usersFriendRepo;
 
-    public void getUserFriendList(Channel channel) {
+    public void getUserFriendList(Channel channel, int type) { //1 banbe, 2 tu choi, 3 moi ket ban
         UserContext userContext = gameManager.getUserContext(channel);
-        List<UserFriendDto> userFriends = getFriendList(userContext);
+        List<UserFriendDto> userFriends = getUserFriendByType(userContext, type);
         channel.writeAndFlush(new FriendListPacket(userFriends).build().getPacket());
     }
 
-    public void updateStatusFriend(Channel channel) {
+    public void updateStatusFriend(Channel channel, int type) {
         UserContext userContext = gameManager.getUserContext(channel);
-        List<UserFriendDto> userFriends = getFriendList(userContext);
-
+        List<UserFriendDto> userFriends = getUserFriendByType(userContext, type);
         List<UserFriendDto> usersFriendOnline = new ArrayList<>();
         for (UserFriendDto userFriendDto : userFriends) {
             if (gameManager.getOptionalChannelByUsername(userFriendDto.getUsername()).isPresent()) {
@@ -79,7 +78,8 @@ public class UserService {
     public void requestRejectApproveFriend(Channel channel, RejectApproveFriendReq req) {
         UserContext userContext = gameManager.getUserContext(channel);
         UsersFriendEntity usersFriendEntity = usersFriendRepo.findFirstFullByUsernameAndFriendUsername(userContext.getUsername(), req.getUserId());
-        if (usersFriendEntity == null || !usersFriendEntity.getFriendshipStatus().equals(UserConstant.FRIEND_PENDING_STATUS)) return;
+        if (usersFriendEntity == null || !usersFriendEntity.getFriendshipStatus().equals(UserConstant.FRIEND_PENDING_STATUS))
+            return;
         if (req.isApprove()) {
             usersFriendEntity.setFriendshipStatus(UserConstant.FRIEND_ACCEPTED_STATUS);
             usersFriendRepo.save(usersFriendEntity);
@@ -92,7 +92,36 @@ public class UserService {
         return usersFriendRepo
                 .finaAllCustomFullFriendByUsername(userContext.getUser().getUsername())
                 .stream().map(UserFriendDto::new)
-                .filter(userFriendDto -> userFriendDto.getStatus().equals(UserConstant.FRIEND_ACCEPTED_STATUS))
                 .toList();
+    }
+
+    public List<UserFriendDto> getFriendListAccepted(UserContext userContext) {
+        return getFriendList(userContext)
+                .stream().filter(userFriendDto -> userFriendDto.getStatus().equals(UserConstant.FRIEND_ACCEPTED_STATUS))
+                .toList();
+    }
+
+    public List<UserFriendDto> getFriendListBlocked(UserContext userContext) {
+        return getFriendList(userContext)
+                .stream().filter(userFriendDto -> userFriendDto.getStatus().equals(UserConstant.FRIEND_BLOCKED_STATUS))
+                .toList();
+    }
+
+    public List<UserFriendDto> getFriendListPending(UserContext userContext) {
+        return getFriendList(userContext)
+                .stream().filter(userFriendDto -> userFriendDto.getStatus().equals(UserConstant.FRIEND_PENDING_STATUS))
+                .toList();
+    }
+
+    public List<UserFriendDto> getUserFriendByType(UserContext userContext, int type) {
+        List<UserFriendDto> userFriends = new ArrayList<>();
+        if (type == 1) {
+            userFriends = getFriendListAccepted(userContext);
+        } else if (type == 2) {
+            userFriends = getFriendListBlocked(userContext);
+        } else if (type == 3) {
+            userFriends = getFriendListPending(userContext);
+        }
+        return userFriends;
     }
 }

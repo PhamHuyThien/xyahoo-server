@@ -1,7 +1,9 @@
 package home.thienph.xyahoo_server.controllers;
 
+import home.thienph.xyahoo_server.anotations.HasRole;
 import home.thienph.xyahoo_server.anotations.PacketMapping;
 import home.thienph.xyahoo_server.constants.ClientCommandConst;
+import home.thienph.xyahoo_server.constants.UserConstant;
 import home.thienph.xyahoo_server.data.base.Packet;
 import home.thienph.xyahoo_server.data.mapping.packet.ReceiveChatRoomMessagePacket;
 import home.thienph.xyahoo_server.data.users.UserContext;
@@ -21,6 +23,7 @@ public class ChatController {
     GameManager gameManager;
 
     @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.SEND_MESSAGE)
     public void chat(Channel channel, Packet packet) {
         UserContext userContext = gameManager.getUserContext(channel);
@@ -43,6 +46,7 @@ public class ChatController {
 
 
     @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.LEAVE_CHAT_ROOM)
     public void leaveChatRoom(Channel channel, Packet packet) {
         UserContext userContext = gameManager.getUserContext(channel);
