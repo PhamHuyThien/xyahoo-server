@@ -3,6 +3,7 @@ package home.thienph.xyahoo_server.services;
 import home.thienph.xyahoo_server.data.requests.LoginReq;
 import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.managers.GameManager;
+import home.thienph.xyahoo_server.utils.XBase64;
 import io.netty.channel.Channel;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
@@ -28,20 +29,28 @@ public class AuthService {
     @Autowired
     HomeService homeService;
 
+    @Autowired
+    UserService userService;
+
     @SneakyThrows
     public void login(Channel ctx, LoginReq loginReq) {
         if (loginReq.getUsername() == null || loginReq.getPassword() == null) {
             return;
         }
-        Channel oldChannel = gameManager.getChannelByUsername(loginReq.getUsername());
+        String username = XBase64.decodeWithReverse(loginReq.getUsername());
+        String password = XBase64.decodeWithReverse(loginReq.getPassword());
+
+        Channel oldChannel = gameManager.getChannelByUsername(username);
         if (oldChannel != null) {
             oldChannel.close();
         }
         UserContext user = gameManager.getUserContext(ctx);
+        user.setAccountId(1L);
         user.setLogin(true);
-        user.setUsername(loginReq.getUsername());
-        user.setPassword(loginReq.getPassword());
+        user.setUsername(username);
+        user.setPassword(password);
         resourceService.loadResource(ctx);
+        userService.updateUserInfoAndFriendId(ctx);
         homeService.showHome(ctx);
     }
 }

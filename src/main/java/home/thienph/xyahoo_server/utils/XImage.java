@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -23,5 +24,13 @@ public class XImage {
                 image.getHeight(),
                 fileData
         );
+    }
+
+    public static byte[] readAllBytes(Path path) {
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            return null;
+        }
     }
 }

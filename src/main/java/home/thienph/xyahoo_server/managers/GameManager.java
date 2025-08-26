@@ -25,15 +25,15 @@ public class GameManager {
     public void init() {
         log.info("Init game manager...");
         homeGrids.add(new Grid("Bạn Bè", ScreenConstant.FRIEND_SCREEN_ID, 100, false));
-        homeGrids.add(new Grid("+4 Phương", 2, 101, false));
+        homeGrids.add(new Grid("+4 Phương", ScreenConstant.ROOM_SCREEN_ID, 101, false));
         homeGrids.add(new Grid("Yahoo!", ScreenConstant.YAHOO_SCREEN_ID, 102, false));
-        homeGrids.add(new Grid("Hồ Sơ", 4, 103, false));
-        homeGrids.add(new Grid("Tiền", 4, 103, false));
-        homeGrids.add(new Grid("Shop", 4, 103, false));
-        homeGrids.add(new Grid("Tiến Lên", 4, 103, false));
-        homeGrids.add(new Grid("Media", 4, 103, false));
-        homeGrids.add(new Grid("Giải trí", 4, 103, false));
-        homeGrids.add(new Grid("Top", 4, 103, false));
+        homeGrids.add(new Grid("Hồ Sơ", ScreenConstant.PROFILE_SCREEN_ID, 103, false));
+        homeGrids.add(new Grid("Tiền", ScreenConstant.MONEY_SCREEN_ID, 103, false));
+        homeGrids.add(new Grid("Shop", ScreenConstant.SHOP_SCREEN_ID, 103, false));
+        homeGrids.add(new Grid("Tiến Lên", ScreenConstant.GAME_SCREEN_ID, 103, false));
+        homeGrids.add(new Grid("Media", ScreenConstant.MEDIA_SCREEN_ID, 103, false));
+        homeGrids.add(new Grid("Giải trí", ScreenConstant.ENTERTAINMENT_SCREEN_ID, 103, false));
+        homeGrids.add(new Grid("Top", ScreenConstant.TOP_SCREEN_ID, 103, false));
         log.info("Done load home grids.");
         log.info("Init game manager done.");
     }

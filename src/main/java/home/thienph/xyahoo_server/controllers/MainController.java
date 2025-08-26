@@ -21,7 +21,12 @@ public class MainController {
     public void getDataUIComponent(Channel channel, Packet packet) {
         ByteBuf payload = Unpooled.wrappedBuffer(XByteBuf.readByteArray(packet.getPayload()));
         Integer command = payload.readInt();
-        uiComponentHandlerRegistry.handle(channel, command, packet.getPayload());
+        uiComponentHandlerRegistry.handle(channel, command, payload);
     }
 
+    @PacketMapping(commandId = ClientCommandConst.OPEN_SCREEN_BY_ID)
+    public void openScreenById(Channel channel, Packet packet) {
+        int screenId = packet.getPayload().readInt();
+        uiComponentHandlerRegistry.handle(channel, screenId, packet.getPayload());
+    }
 }

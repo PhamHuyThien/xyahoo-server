@@ -25,6 +25,8 @@ public class UIComponentHandlerRegistry {
 
     @Autowired
     private ApplicationContext context;
+    @Autowired
+    private ExceptionHandlerRegistry exceptionHandlerRegistry;
 
     @PostConstruct
     public void init() {
@@ -48,10 +50,11 @@ public class UIComponentHandlerRegistry {
         if (method != null) {
             try {
                 method.invoke(bean, ctx, payload);
-            } catch (InvocationTargetException ignored) {
+            } catch (InvocationTargetException e) {
+                exceptionHandlerRegistry.handleException(ctx, null, e.getCause());
             }
         } else {
-            log.warn("No handler found for commandId={}", commandId);
+            log.warn("CommandMapping / No handler found for commandId={}", commandId);
         }
     }
 }

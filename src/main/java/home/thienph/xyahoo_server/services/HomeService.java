@@ -24,7 +24,7 @@ public class HomeService {
 
     public void createScreenHome(Channel channel) {
     }
-
+    
     public void showHome(Channel channel) {
         GameProcessPacketPipeline pipeline = GameProcessPacketPipeline.newInstance()
                 .addPipeline(() -> new NewDialogProcess(ScreenConstant.MAIN_SCREEN_TITLE, ScreenConstant.MAIN_SCREEN_ID, true))

@@ -13,4 +13,7 @@ public class ClientCommandConst {
     public final int LOGIN_ID = 1016;
     public final int GET_UI_COMPONENT_DATA = 115;
     public final int USER_LIST = 5000036;
+    public final int OPEN_SCREEN_BY_ID = 123;
+    public final int SEND_MESSAGE = 4804;
+    public final int LEAVE_CHAT_ROOM = 4802;
 }

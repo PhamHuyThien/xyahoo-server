@@ -46,5 +46,8 @@ public final class BuddyInfo {
         this.contactId = contactId;
     }
 
-
+    public BuddyInfo(long contactId, String description) {
+        this.contactId = contactId;
+        this.description = description;
+    }
 }

@@ -10,6 +10,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class UserContext {
+    Long accountId;
     String username;
     String password;
     String role;
