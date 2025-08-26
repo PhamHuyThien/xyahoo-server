@@ -1,9 +1,13 @@
 package home.thienph.xyahoo_server.controllers;
 
+import home.thienph.xyahoo_server.anotations.HasRole;
 import home.thienph.xyahoo_server.anotations.PacketMapping;
 import home.thienph.xyahoo_server.configs.UIComponentHandlerRegistry;
 import home.thienph.xyahoo_server.constants.ClientCommandConst;
+import home.thienph.xyahoo_server.constants.UserConstant;
 import home.thienph.xyahoo_server.data.base.Packet;
+import home.thienph.xyahoo_server.data.requests.AddFriendReq;
+import home.thienph.xyahoo_server.data.requests.RejectApproveFriendReq;
 import home.thienph.xyahoo_server.services.UserService;
 import io.netty.channel.Channel;
 import lombok.SneakyThrows;
@@ -20,10 +24,26 @@ public class UserController {
     UserService userService;
 
     @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.USER_LIST)
     public void getUserList(Channel channel, Packet packet) {
         userService.getUserFriendList(channel);
         userService.updateStatusFriend(channel);
     }
 
+    @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
+    @PacketMapping(commandId = ClientCommandConst.REQUEST_ADD_FRIEND)
+    public void requestAddFriend(Channel channel, Packet packet) {
+        AddFriendReq req = new AddFriendReq().mapping(packet.getPayload());
+        userService.requestAddFriend(channel, req);
+    }
+
+    @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
+    @PacketMapping(commandId = ClientCommandConst.REQUEST_REJECT_APPROVE_FRIEND)
+    public void requestRejectApproveFriend(Channel channel, Packet packet) {
+        RejectApproveFriendReq req = new RejectApproveFriendReq(packet.getPayload());
+        userService.requestRejectApproveFriend(channel, req);
+    }
 }

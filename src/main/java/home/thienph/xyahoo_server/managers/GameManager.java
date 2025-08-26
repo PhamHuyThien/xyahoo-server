@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
@@ -36,6 +37,10 @@ public class GameManager {
         homeGrids.add(new Grid("Top", ScreenConstant.TOP_SCREEN_ID, 103, false));
         log.info("Done load home grids.");
         log.info("Init game manager done.");
+    }
+
+    public Optional<Channel> getOptionalChannelByUsername(String username) {
+        return Optional.ofNullable(getChannelByUsername(username));
     }
 
     public Channel getChannelByUsername(String username) {

@@ -1,5 +1,6 @@
 package home.thienph.xyahoo_server.data.users;
 
+import home.thienph.xyahoo_server.entities.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,13 +11,11 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class UserContext {
-    Long accountId;
+    Long id;
     String username;
-    String password;
-    String role;
-    boolean isLogin;
+    UserEntity user;
     UserDevice device;
-
+    boolean isLogin;
 
     public void destroy() {
 
