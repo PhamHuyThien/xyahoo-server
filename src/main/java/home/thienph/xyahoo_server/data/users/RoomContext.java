@@ -6,14 +6,14 @@ import home.thienph.xyahoo_server.entities.RoomGroupEntity;
 import io.netty.channel.Channel;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class RoomContext {
     RoomGroupEntity roomGroup;
     RoomEntity room;
-    List<Channel> channels;
-    List<UserContext> users;
+    Set<Channel> channels;
+    Set<UserContext> users;
     int roomStatus;
     String roomStatusText;
     byte[] icon;

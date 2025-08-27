@@ -8,6 +8,7 @@ import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.managers.GameManager;
 import home.thienph.xyahoo_server.services.ui_component_handler.HomeCommandService;
+import home.thienph.xyahoo_server.services.ui_component_handler.RoomCommandService;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -25,6 +26,8 @@ public class RoomCommandController {
     GameManager gameManager;
     @Autowired
     HomeCommandService homeCommandService;
+    @Autowired
+    RoomCommandService roomCommandService;
 
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_SELECT_INDEX)
@@ -38,9 +41,11 @@ public class RoomCommandController {
         RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
         if (roomContext == null) return;
 
-        roomContext.getChannels().add(channel);
-        roomContext.getUsers().add(userContext);
-        roomContext.update();
+        if (!roomContext.getChannels().contains(channel)) {
+            roomContext.getChannels().add(channel);
+            roomContext.getUsers().add(userContext);
+            roomContext.update();
+        }
 
         long roomOwnerId = roomContext.getRoom().getUserOwnerId() == null ? -999L : roomContext.getRoom().getUserOwnerId();
         JoinChatRoomPacket joinChatRoomPacket = new JoinChatRoomPacket(true, roomContext.getRoom().getRoomName(), roomKey, roomOwnerId);
@@ -52,9 +57,7 @@ public class RoomCommandController {
     public void roomCreateNewRoom(Channel channel, ByteBuf payload) {
         String roomName = XByteBuf.readString(payload);
         payload.readByte();
-
-
-        log.info("roomCreateNewRoom {}", roomName);
+        roomCommandService.roomCreateNewRoom(channel, roomName);
     }
 
     @SneakyThrows

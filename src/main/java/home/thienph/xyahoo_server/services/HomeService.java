@@ -32,7 +32,7 @@ public class HomeService {
                                 componentsAction.add(new GetDataComponent((byte) 0, 1, ScreenConstant.MAIN_SCREEN_ID, ScreenConstant.FRIEND_SCREEN_ID, false, null));
                                 return new GetDataUIComponentProcess(CommandGetUIConstant.HOME_SELECT_INDEX, componentsAction);
                             });
-                    GridComponent homeGrid = new GridComponent(40, 40, true, gameManager.getHomeGrids(), homeAction);
+                    GridComponent homeGrid = new GridComponent(40, 40, true, gameManager.getGameHomes(), homeAction);
                     return new UIComponentProcess(ScreenConstant.MAIN_SCREEN_ID, ComponentConstant.MAIN_GRID_COMPONENT_ID, homeGrid);
                 })
                 .endPipeline();

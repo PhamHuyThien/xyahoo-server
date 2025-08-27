@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface RoomGroupRepo extends JpaRepository<RoomGroupEntity, Long> {
+    Optional<RoomGroupEntity> findFirstByIsForUser(Integer isForUser);
 }

@@ -75,7 +75,8 @@ public class HomeCommandService {
                     return new CreateButtonActionProcess(ScreenConstant.ROOM_SCREEN_ID, (byte) 0, "Menu", action);
                 })
                 .addPipeline(() -> {
-                    GameProcessPacketPipeline action = GameProcessPacketPipeline.newInstance().addPipeline(new SwitchScreenProcess(ScreenConstant.MAIN_SCREEN_ID));
+                    GameProcessPacketPipeline action = GameProcessPacketPipeline.newInstance()
+                            .addPipeline(new DestroyScreenProcess(ScreenConstant.ROOM_SCREEN_ID));
                     return new CreateButtonActionProcess(ScreenConstant.ROOM_SCREEN_ID, (byte) 2, "Đóng", action);
                 })
                 .addPipeline(new LoadingProcess(false))

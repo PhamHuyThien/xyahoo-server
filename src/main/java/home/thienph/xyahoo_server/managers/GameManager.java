@@ -1,13 +1,13 @@
 package home.thienph.xyahoo_server.managers;
 
-import home.thienph.xyahoo_server.constants.ScreenConstant;
-import home.thienph.xyahoo_server.data.resources.Grid;
 import home.thienph.xyahoo_server.data.users.ResourceContext;
 import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
+import home.thienph.xyahoo_server.entities.GameHomeEntity;
 import home.thienph.xyahoo_server.entities.GameResourceEntity;
 import home.thienph.xyahoo_server.entities.RoomEntity;
 import home.thienph.xyahoo_server.entities.RoomGroupEntity;
+import home.thienph.xyahoo_server.repositories.GameHomeRepo;
 import home.thienph.xyahoo_server.repositories.GameResourceRepo;
 import home.thienph.xyahoo_server.repositories.RoomGroupRepo;
 import home.thienph.xyahoo_server.repositories.RoomRepo;
@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class GameManager {
     private final Map<Channel, UserContext> userContexts = new ConcurrentHashMap<>();
-    private final List<Grid> homeGrids = new ArrayList<>();
+    private final List<GameHomeEntity> gameHomes = new ArrayList<>();
     private final List<RoomContext> roomContexts = new ArrayList<>();
     private final List<ResourceContext> resourceContexts = new ArrayList<>();
 
@@ -38,12 +38,21 @@ public class GameManager {
     RoomRepo roomRepo;
     @Autowired
     GameResourceRepo gameResourceRepo;
+    @Autowired
+    GameHomeRepo gameHomeRepo;
 
 
     @PostConstruct
     public void init() {
         log.info("Init game manager...");
+        loadGameResources();
+        loadGameHomes();
+        loadAllRoomContexts();
+        log.info("Init game manager done.");
+    }
 
+    public void loadGameResources() {
+        List<ResourceContext> resourceContexts = new ArrayList<>();
         List<GameResourceEntity> gameResources = gameResourceRepo.findAllByStatus(1);
         for (GameResourceEntity gameResource : gameResources) {
             byte[] resourceData = XImage.readAllBytes(Path.of(gameResource.getResourceFile()));
@@ -56,20 +65,20 @@ public class GameManager {
             resourceContext.setResourceData(resourceData);
             resourceContexts.add(resourceContext);
         }
-        log.info("Done load resources, total: {}", resourceContexts.size());
+        this.resourceContexts.clear();
+        this.resourceContexts.addAll(resourceContexts);
+        log.info("Done load resources, total: {}", this.resourceContexts.size());
+    }
 
-        homeGrids.add(new Grid("Bạn Bè", ScreenConstant.FRIEND_SCREEN_ID, 100, false));
-        homeGrids.add(new Grid("+4 Phương", ScreenConstant.ROOM_SCREEN_ID, 101, false));
-        homeGrids.add(new Grid("Yahoo!", ScreenConstant.YAHOO_SCREEN_ID, 102, false));
-        homeGrids.add(new Grid("Hồ Sơ", ScreenConstant.PROFILE_SCREEN_ID, 103, false));
-        homeGrids.add(new Grid("Tiền", ScreenConstant.MONEY_SCREEN_ID, 103, false));
-        homeGrids.add(new Grid("Shop", ScreenConstant.SHOP_SCREEN_ID, 103, false));
-        homeGrids.add(new Grid("Tiến Lên", ScreenConstant.GAME_SCREEN_ID, 103, false));
-        homeGrids.add(new Grid("Media", ScreenConstant.MEDIA_SCREEN_ID, 103, false));
-        homeGrids.add(new Grid("Giải trí", ScreenConstant.ENTERTAINMENT_SCREEN_ID, 103, false));
-        homeGrids.add(new Grid("Top", ScreenConstant.TOP_SCREEN_ID, 103, false));
-        log.info("Done load home grids.");
+    public void loadGameHomes() {
+        List<GameHomeEntity> gameHomes = gameHomeRepo.findAllByStatusOrderByOrderAsc(1);
+        this.gameHomes.clear();
+        this.gameHomes.addAll(gameHomes);
+        log.info("Done load  game home, total: {}", this.gameHomes.size());
+    }
 
+    public void loadAllRoomContexts() {
+        List<RoomContext> roomContexts = new ArrayList<>();
         List<RoomEntity> rooms = roomRepo.findAllByExpireAtIsNullOrExpireAtAfter(new Date());
         for (RoomEntity room : rooms) {
             RoomGroupEntity roomGroup = roomGroupRepo.findById(room.getRoomId()).orElse(null);
@@ -77,15 +86,15 @@ public class GameManager {
             RoomContext roomContext = new RoomContext();
             roomContext.setRoomGroup(roomGroup);
             roomContext.setRoom(room);
-            roomContext.setChannels(new ArrayList<>());
-            roomContext.setUsers(new ArrayList<>());
+            roomContext.setChannels(new HashSet<>());
+            roomContext.setUsers(new HashSet<>());
             roomContext.setIcon(getResourceContextById(room.getIconId()).getResourceData());
             roomContext.update();
             roomContexts.add(roomContext);
         }
-        log.info("Done load rooms, total: {}", roomContexts.size());
-
-        log.info("Init game manager done.");
+        this.roomContexts.clear();
+        this.roomContexts.addAll(roomContexts);
+        log.info("Done load rooms, total: {}", this.roomContexts.size());
     }
 
     public Optional<Channel> getOptionalChannelByUsername(String username) {

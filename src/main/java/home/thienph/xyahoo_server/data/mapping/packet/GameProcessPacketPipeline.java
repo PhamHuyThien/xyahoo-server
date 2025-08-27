@@ -15,6 +15,8 @@ import java.util.List;
 public class GameProcessPacketPipeline extends APacketPipeline {
     ByteBuf payloadPipeline = Unpooled.buffer();
     List<IGameProcessPacketPipeline> gameProcessPipelines = new ArrayList<>();
+    boolean isEndPipeline = false;
+    boolean isBuild = false;
 
     public GameProcessPacketPipeline() {
         super(121);
@@ -35,14 +37,20 @@ public class GameProcessPacketPipeline extends APacketPipeline {
     }
 
     public GameProcessPacketPipeline endPipeline() {
-        gameProcessPipelines.forEach(gameProcess -> gameProcess.build(payloadPipeline));
-        payloadPipeline.writeInt(2);
+        if (!isEndPipeline) {
+            isEndPipeline = true;
+            gameProcessPipelines.forEach(gameProcess -> gameProcess.build(payloadPipeline));
+            payloadPipeline.writeInt(2);
+        }
         return this;
     }
 
     @Override
     public GameProcessPacketPipeline build() {
-        XByteBuf.writeByteArray(packet.getPayload(), payloadPipeline.array());
+        if (!isBuild) {
+            isBuild = true;
+            XByteBuf.writeByteArray(packet.getPayload(), payloadPipeline.array());
+        }
         return this;
     }
 }
