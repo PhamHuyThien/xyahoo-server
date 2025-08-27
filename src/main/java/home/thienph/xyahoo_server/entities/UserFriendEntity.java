@@ -10,8 +10,8 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
-@Table(name = "users_friends")
-public class UsersFriendEntity {
+@Table(name = "user_friends")
+public class UserFriendEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -23,19 +23,13 @@ public class UsersFriendEntity {
     @Column(name = "friend_username")
     private String friendUsername;
 
-    @Column(name = "friendship_status", length = 20)
-    private String friendshipStatus;
+    @Column(name = "status")
+    private Integer status;
 
     @Column(name = "create_at")
     private Date createAt;
 
-    @Column(name = "accepted_at")
-    private Date acceptedAt;
-
-    @Column(name = "declined_at")
-    private Date declinedAt;
-
-    @Column(name = "block_at")
-    private Date blockAt;
+    @Column(name = "update_at")
+    private Date updateAt;
 
 }

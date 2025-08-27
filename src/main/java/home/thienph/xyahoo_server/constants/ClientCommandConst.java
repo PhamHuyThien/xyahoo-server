@@ -19,4 +19,7 @@ public class ClientCommandConst {
     public final int LEAVE_CHAT_ROOM = 4802;
     public final int REQUEST_ADD_FRIEND = 5000025;
     public final int REQUEST_REJECT_APPROVE_FRIEND = 5000017;
+    public static final int DELETE_FRIEND_USER = 5000024;
+    public static final int BLOCK_FRIEND_USER = 5000019;
+    public static final int UNBLOCK_FRIEND_USER = 5000020;
 }

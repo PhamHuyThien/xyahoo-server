@@ -47,4 +47,28 @@ public class UserController {
         RejectApproveFriendReq req = new RejectApproveFriendReq(packet.getPayload());
         userService.requestRejectApproveFriend(channel, req);
     }
+
+    @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
+    @PacketMapping(commandId = ClientCommandConst.DELETE_FRIEND_USER)
+    public void deleteFriendUser(Channel channel, Packet packet) {
+        long userId = packet.getPayload().readLong();
+        userService.deleteFriendUser(channel, userId);
+    }
+
+    @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
+    @PacketMapping(commandId = ClientCommandConst.BLOCK_FRIEND_USER)
+    public void blockFriendUser(Channel channel, Packet packet) {
+        long userId = packet.getPayload().readLong();
+        userService.blockFriendUser(channel, userId);
+    }
+
+    @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
+    @PacketMapping(commandId = ClientCommandConst.UNBLOCK_FRIEND_USER)
+    public void unblockFriendUser(Channel channel, Packet packet) {
+        long userId = packet.getPayload().readLong();
+        userService.unblockFriendUser(channel, userId);
+    }
 }
