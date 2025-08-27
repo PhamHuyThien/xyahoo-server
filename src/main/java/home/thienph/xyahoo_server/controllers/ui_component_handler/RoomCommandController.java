@@ -7,6 +7,7 @@ import home.thienph.xyahoo_server.data.mapping.packet.JoinChatRoomPacket;
 import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.managers.GameManager;
+import home.thienph.xyahoo_server.services.ui_component_handler.HomeCommandService;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -22,12 +23,17 @@ public class RoomCommandController {
 
     @Autowired
     GameManager gameManager;
+    @Autowired
+    HomeCommandService homeCommandService;
 
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_SELECT_INDEX)
-    public void roomSelectIndex(Channel channel, ByteBuf payload) {
+    public void joinChatRoom(Channel channel, ByteBuf payload) {
         String roomKey = XByteBuf.readString(payload);
         payload.readByte();
+
+        if (roomKey == null || roomKey.isEmpty()) return;
+
         UserContext userContext = gameManager.getUserContext(channel);
         RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
         if (roomContext == null) return;
@@ -46,6 +52,16 @@ public class RoomCommandController {
     public void roomCreateNewRoom(Channel channel, ByteBuf payload) {
         String roomName = XByteBuf.readString(payload);
         payload.readByte();
+
+
         log.info("roomCreateNewRoom {}", roomName);
+    }
+
+    @SneakyThrows
+    @CommandMapping(commandId = CommandGetUIConstant.ROOM_REFRESH_ROOM)
+    public void refreshRoom(Channel channel, ByteBuf payload) {
+        payload.readInt();
+        payload.readByte();
+        homeCommandService.homeSelectRoom(channel, payload);
     }
 }

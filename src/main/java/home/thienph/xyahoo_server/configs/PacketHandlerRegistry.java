@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
 import java.lang.reflect.InvocationTargetException;
@@ -23,6 +25,7 @@ import java.util.Map;
 
 @Slf4j
 @Configuration
+@DependsOn("gameManager")
 public class PacketHandlerRegistry {
 
     private final Map<String, Method> handlerPacketMap = new HashMap<>();

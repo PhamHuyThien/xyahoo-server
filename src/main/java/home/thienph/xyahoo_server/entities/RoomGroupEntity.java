@@ -1,13 +1,9 @@
 package home.thienph.xyahoo_server.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.Instant;
 import java.util.Date;
 
 @Getter
@@ -16,6 +12,7 @@ import java.util.Date;
 @Table(name = "room_group")
 public class RoomGroupEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -28,4 +25,6 @@ public class RoomGroupEntity {
     @Column(name = "update_at")
     private Date updateAt;
 
+    @Column(name = "is_for_user")
+    private Integer isForUser;
 }

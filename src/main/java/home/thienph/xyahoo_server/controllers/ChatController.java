@@ -11,6 +11,7 @@ import home.thienph.xyahoo_server.data.mapping.packet.UserChatPacket;
 import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.managers.GameManager;
+import home.thienph.xyahoo_server.services.ui_component_handler.HomeCommandService;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.channel.Channel;
 import lombok.SneakyThrows;
@@ -24,6 +25,9 @@ public class ChatController {
 
     @Autowired
     GameManager gameManager;
+
+    @Autowired
+    HomeCommandService homeCommandService;
 
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
@@ -56,6 +60,8 @@ public class ChatController {
         roomContext.getChannels().remove(channel);
         roomContext.getUsers().remove(userContext);
         roomContext.update();
+
+        homeCommandService.homeSelectRoom(channel, packet.getPayload());
     }
 
     @SneakyThrows
