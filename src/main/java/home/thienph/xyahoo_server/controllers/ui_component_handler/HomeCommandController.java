@@ -12,11 +12,13 @@ import home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component.
 import home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component.PopupDialogComponent;
 import home.thienph.xyahoo_server.data.resources.ContextMenu;
 import home.thienph.xyahoo_server.data.resources.GetDataComponent;
+import home.thienph.xyahoo_server.managers.GameManager;
 import home.thienph.xyahoo_server.utils.XImage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.nio.file.Path;
@@ -27,6 +29,9 @@ import java.util.List;
 @Controller
 @UIComponentController
 public class HomeCommandController {
+
+    @Autowired
+    GameManager gameManager;
 
     @SneakyThrows
     @CommandMapping(commandId = ScreenConstant.ROOM_SCREEN_ID)
@@ -41,13 +46,7 @@ public class HomeCommandController {
                                 return new GetDataUIComponentProcess(CommandGetUIConstant.ROOM_SELECT_INDEX, componentsAction);
                             });
 
-                    List<BuddyInfo> buddyInfoList = new ArrayList<>();
-                    byte[] images = XImage.readAllBytes(Path.of("data/images/Stat1.png"));
-                    buddyInfoList.add(new BuddyInfo("Phòng công cộng", "Công cộng 1", "5/20", "dltext1", 100, images, 2, "5/20"));
-                    buddyInfoList.add(new BuddyInfo("Phòng công cộng", "Công cộng 2", "15/20", "dltext2", 100, images, 0, "6/20"));
-                    buddyInfoList.add(new BuddyInfo("Phòng giải trí", "Giải trí 1", "8/20", "dltext3", 100, images, 3, "20/20"));
-                    buddyInfoList.add(new BuddyInfo("Phòng bí mật", "Tao nói chúng mày nghe :D", "mediaExtension D", "dltext4", 100, images, 1, "4/20"));
-                    return new UIComponentProcess(ScreenConstant.ROOM_SCREEN_ID, ComponentConstant.ROOM_LIST_COMPONENT_ID, new ListComponent(true, (byte) 0, (byte) 3, 10, 10, (byte) 1, buddyInfoList, selectRoomAction));
+                    return new UIComponentProcess(ScreenConstant.ROOM_SCREEN_ID, ComponentConstant.ROOM_LIST_COMPONENT_ID, new ListComponent(true, (byte) 0, (byte) 3, 10, 10, (byte) 1, gameManager.getRoomContexts(), selectRoomAction));
                 })
 //                .addPipeline(new MultiSelectListComponentProcess(ScreenConstant.ROOM_SCREEN_ID, ComponentConstant.ROOM_LIST_COMPONENT_ID, true))
                 .addPipeline(() -> {

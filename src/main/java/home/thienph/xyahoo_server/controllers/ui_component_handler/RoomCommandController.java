@@ -4,11 +4,15 @@ import home.thienph.xyahoo_server.anotations.CommandMapping;
 import home.thienph.xyahoo_server.anotations.UIComponentController;
 import home.thienph.xyahoo_server.constants.CommandGetUIConstant;
 import home.thienph.xyahoo_server.data.mapping.packet.JoinChatRoomPacket;
+import home.thienph.xyahoo_server.data.users.RoomContext;
+import home.thienph.xyahoo_server.data.users.UserContext;
+import home.thienph.xyahoo_server.managers.GameManager;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 @Slf4j
@@ -16,17 +20,24 @@ import org.springframework.stereotype.Controller;
 @UIComponentController
 public class RoomCommandController {
 
+    @Autowired
+    GameManager gameManager;
+
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_SELECT_INDEX)
     public void roomSelectIndex(Channel channel, ByteBuf payload) {
-        String roomIndex = XByteBuf.readString(payload);
+        String roomKey = XByteBuf.readString(payload);
         payload.readByte();
-        log.info("roomSelectIndex {}", roomIndex);
+        UserContext userContext = gameManager.getUserContext(channel);
+        RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
+        if (roomContext == null) return;
 
-//        ShowInviteChatDialogPacket packet = new ShowInviteChatDialogPacket("test1", "test2", "test3", "test4");
-//        channel.writeAndFlush(packet.build().getPacket());
+        roomContext.getChannels().add(channel);
+        roomContext.getUsers().add(userContext);
+        roomContext.update();
 
-        JoinChatRoomPacket joinChatRoomPacket = new JoinChatRoomPacket(true, "test1", "roomID", 1);
+        long roomOwnerId = roomContext.getRoom().getUserOwnerId() == null ? -999L : roomContext.getRoom().getUserOwnerId();
+        JoinChatRoomPacket joinChatRoomPacket = new JoinChatRoomPacket(true, roomContext.getRoom().getRoomName(), roomKey, roomOwnerId);
         channel.writeAndFlush(joinChatRoomPacket.build().getPacket());
     }
 

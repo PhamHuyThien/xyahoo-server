@@ -37,6 +37,10 @@ public class ServerHandler extends SimpleChannelInboundHandler<Packet> {
     public void channelInactive(ChannelHandlerContext ctx) {
         gameManager.getUserContexts().get(ctx.channel()).destroy();
         gameManager.getUserContexts().remove(ctx.channel());
+        gameManager.getRoomContexts().forEach(roomContext -> {
+            roomContext.getChannels().remove(ctx.channel());
+            roomContext.getUsers().remove(gameManager.getUserContext(ctx.channel()));
+        });
         log.debug("Client disconnected: {}", ctx.channel().remoteAddress());
     }
 

@@ -84,13 +84,13 @@ public class SimulatorService {
 //        gameProcessPacketPipeline.addPipeline(new UIComponentProcess(11111, 10, new PopupDialogComponent("popup day nhe", (byte) 0, GameProcessPacketPipeline.newInstance())));
 //        gameProcessPacketPipeline.addPipeline(new UIComponentProcess(11111, 10, new ButtonComponent("buttone", 100, GameProcessPacketPipeline.newInstance())));
 
-        List<BuddyInfo> buddyInfoList = new ArrayList<>();
-        byte[] images = Files.readAllBytes(Path.of("data/images/Stat1.png"));
-        buddyInfoList.add(new BuddyInfo("grA", "displayA", "mediaExtension A", "dltext1", 100, images, 2, "description A"));
-        buddyInfoList.add(new BuddyInfo("grA", "displayB", "mediaExtension B", "dltext2", 100, images, 0, "description B"));
-        buddyInfoList.add(new BuddyInfo("grC", "displayC", "mediaExtension C", "dltext3", 100, images, 3, "description C"));
-        buddyInfoList.add(new BuddyInfo("grD", "displayD", "mediaExtension D", "dltext4", 100, images, 1, "description D"));
-        gameProcessPacketPipeline.addPipeline(new UIComponentProcess(11111, 11, new ListComponent(true, (byte) 0, (byte) 3, 10, 10, (byte) 1, buddyInfoList, GameProcessPacketPipeline.newInstance())));
+//        List<BuddyInfo> buddyInfoList = new ArrayList<>();
+//        byte[] images = Files.readAllBytes(Path.of("data/images/Stat1.png"));
+//        buddyInfoList.add(new BuddyInfo("grA", "displayA", "mediaExtension A", "dltext1", 100, images, 2, "description A"));
+//        buddyInfoList.add(new BuddyInfo("grA", "displayB", "mediaExtension B", "dltext2", 100, images, 0, "description B"));
+//        buddyInfoList.add(new BuddyInfo("grC", "displayC", "mediaExtension C", "dltext3", 100, images, 3, "description C"));
+//        buddyInfoList.add(new BuddyInfo("grD", "displayD", "mediaExtension D", "dltext4", 100, images, 1, "description D"));
+//        gameProcessPacketPipeline.addPipeline(new UIComponentProcess(11111, 11, new ListComponent(true, (byte) 0, (byte) 3, 10, 10, (byte) 1, buddyInfoList, GameProcessPacketPipeline.newInstance())));
 
         gameProcessPacketPipeline.endPipeline();
 

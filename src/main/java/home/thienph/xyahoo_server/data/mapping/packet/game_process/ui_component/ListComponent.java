@@ -2,6 +2,7 @@ package home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component
 
 import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
 import home.thienph.xyahoo_server.data.friends.BuddyInfo;
+import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 
@@ -14,10 +15,10 @@ public class ListComponent extends AComponent {
     int iconWidth;
     int iconHeight;
     byte enableStatusIcon; // 1 enable, 0 disable
-    List<BuddyInfo> buddyInfoList;
+    List<RoomContext> roomContexts;
     GameProcessPacketPipeline action;
 
-    public ListComponent(boolean adjustHeight, byte enableDescription, byte iconType, int iconWidth, int iconHeight, byte enableStatusIcon, List<BuddyInfo> buddyInfoList, GameProcessPacketPipeline action) {
+    public ListComponent(boolean adjustHeight, byte enableDescription, byte iconType, int iconWidth, int iconHeight, byte enableStatusIcon, List<RoomContext> roomContexts, GameProcessPacketPipeline action) {
         super(11);
         this.adjustHeight = adjustHeight;
         this.enableDescription = enableDescription;
@@ -25,7 +26,7 @@ public class ListComponent extends AComponent {
         this.iconWidth = iconWidth;
         this.iconHeight = iconHeight;
         this.enableStatusIcon = enableStatusIcon;
-        this.buddyInfoList = buddyInfoList;
+        this.roomContexts = roomContexts;
         this.action = action;
     }
 
@@ -39,23 +40,23 @@ public class ListComponent extends AComponent {
             payload.writeInt(iconHeight);
         }
         payload.writeByte(enableStatusIcon);
-        payload.writeInt(buddyInfoList.size());
-        for (BuddyInfo buddyInfo : buddyInfoList) {
-            XByteBuf.writeString(payload, buddyInfo.getGroupName());
-            XByteBuf.writeString(payload, buddyInfo.getMediaExtension());
-            XByteBuf.writeString(payload, buddyInfo.getDisplayName());
+        payload.writeInt(roomContexts.size());
+        for (RoomContext roomContext : roomContexts) {
+            XByteBuf.writeString(payload, roomContext.getRoomGroup().getGroupName());
+            XByteBuf.writeString(payload, roomContext.getRoom().getRoomKey());
+            XByteBuf.writeString(payload, roomContext.getRoom().getRoomName());
             if (enableDescription == 1) {
-                XByteBuf.writeString(payload, buddyInfo.getDescription());
+                XByteBuf.writeString(payload, roomContext.getRoomStatusText());
             }
             if (iconType == 2) {
-                payload.writeInt(buddyInfo.getImageSourceId());
+                payload.writeInt(roomContext.getRoom().getIconId());
             } else if (iconType == 3) {
-                XByteBuf.writeByteArray(payload, buddyInfo.getMediaData());
+                XByteBuf.writeByteArray(payload, roomContext.getIcon());
             }
             if (enableStatusIcon == 1) {
-                payload.writeByte(buddyInfo.getStatusCode());
+                payload.writeByte(roomContext.getRoomStatus());
             }
-            XByteBuf.writeString(payload, buddyInfo.getStatusDescription());
+            XByteBuf.writeString(payload, roomContext.getRoomStatusText());
         }
         XByteBuf.writeByteArray(payload, action.endPipeline().getPayloadPipeline().array());
     }
