@@ -22,4 +22,6 @@ public class ClientCommandConst {
     public static final int DELETE_FRIEND_USER = 5000024;
     public static final int BLOCK_FRIEND_USER = 5000019;
     public static final int UNBLOCK_FRIEND_USER = 5000020;
+    public static final int USER_CHAT = 5000023;
+    public static final int USER_BUZZ = 5000016;
 }

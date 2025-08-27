@@ -51,6 +51,14 @@ public class GameManager {
         return userContext == null ? null : userContext.getKey();
     }
 
+    public Channel getChannelByUserId(long userId) {
+        Map.Entry<Channel, UserContext> userContext = userContexts.entrySet().stream()
+                .filter(entry -> userId == entry.getValue().getId())
+                .findFirst()
+                .orElse(null);
+        return userContext == null ? null : userContext.getKey();
+    }
+
     public UserContext getUserContext(Channel channel) {
         return userContexts.get(channel);
     }
