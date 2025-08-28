@@ -1,14 +1,14 @@
-package home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component;
+package home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component;
 
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 
-public class CheckBoxComponent extends AComponent {
+public class CheckBoxCreateComponent extends ACreateComponent {
     String label;
     boolean checked;
     byte alignment;
 
-    public CheckBoxComponent(String label, boolean checked, byte alignment) {
+    public CheckBoxCreateComponent(String label, boolean checked, byte alignment) {
         super(14);
         this.label = label;
         this.checked = checked;

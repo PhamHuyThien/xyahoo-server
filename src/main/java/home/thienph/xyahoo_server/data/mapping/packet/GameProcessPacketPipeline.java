@@ -1,18 +1,19 @@
 package home.thienph.xyahoo_server.data.mapping.packet;
 
 import home.thienph.xyahoo_server.data.mapping.APacketPipeline;
-import home.thienph.xyahoo_server.data.mapping.IPipelineGroup;
+import home.thienph.xyahoo_server.data.mapping.IPipeline;
 import home.thienph.xyahoo_server.data.mapping.packet.game_process.IGameProcessPacketPipeline;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class GameProcessPacketPipeline extends APacketPipeline {
+public class GameProcessPacketPipeline extends APacketPipeline implements IPipeline<IGameProcessPacketPipeline, GameProcessPacketPipeline> {
     ByteBuf payloadPipeline = Unpooled.buffer();
     List<IGameProcessPacketPipeline> gameProcessPipelines = new ArrayList<>();
     boolean isEndPipeline = false;
@@ -26,13 +27,13 @@ public class GameProcessPacketPipeline extends APacketPipeline {
         return new GameProcessPacketPipeline();
     }
 
-    public GameProcessPacketPipeline addPipeline(IGameProcessPacketPipeline gameProcess) {
-        gameProcessPipelines.add(gameProcess);
+    public GameProcessPacketPipeline addPipeline(IGameProcessPacketPipeline data) {
+        gameProcessPipelines.add(data);
         return this;
     }
 
-    public GameProcessPacketPipeline addPipeline(IPipelineGroup<IGameProcessPacketPipeline> pipelineGroup) {
-        gameProcessPipelines.add(pipelineGroup.groupPipeline());
+    public GameProcessPacketPipeline addPipeline(IPipelineGroup<IGameProcessPacketPipeline> function) {
+        gameProcessPipelines.add(function.group());
         return this;
     }
 
@@ -43,6 +44,11 @@ public class GameProcessPacketPipeline extends APacketPipeline {
             payloadPipeline.writeInt(2);
         }
         return this;
+    }
+
+    @Override
+    public void flushPipeline(Channel channel) {
+        channel.writeAndFlush(packet);
     }
 
     @Override

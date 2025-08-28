@@ -55,7 +55,7 @@ public class RoomCommandController {
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_CREATE_NEW_ROOM)
     public void roomCreateNewRoom(Channel channel, ByteBuf payload) {
-        String roomName = XByteBuf.readString(payload);
+        String roomName = XByteBuf.readString(payload).trim();
         payload.readByte();
         roomCommandService.roomCreateNewRoom(channel, roomName);
     }

@@ -32,6 +32,10 @@ public class RoomCommandService {
             XPacket.showSimpleDialog(channel, "Không thể tạo phòng chat mới");
             return;
         }
+        if (roomRepo.existsByRoomName(roomName)) {
+            XPacket.showSimpleDialog(channel, "Tên phòng này đã có người đặt rồi");
+            return;
+        }
 
         RoomEntity roomEntity = new RoomEntity();
         roomEntity.setRoomName(roomName);

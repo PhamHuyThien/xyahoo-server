@@ -1,4 +1,4 @@
-package home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component;
+package home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component;
 
 import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
 import home.thienph.xyahoo_server.utils.XByteBuf;
@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 
 import java.util.List;
 
-public class DropdownComponent extends AComponent {
+public class DropdownCreateComponent extends ACreateComponent {
     String label;
     int selectedIndex;
     List<String> options;
@@ -14,7 +14,7 @@ public class DropdownComponent extends AComponent {
     int finalSelectedIndex;
     int alignment;
 
-    public DropdownComponent(String label, int selectedIndex, List<String> options, GameProcessPacketPipeline action, int finalSelectedIndex, int alignment) {
+    public DropdownCreateComponent(String label, int selectedIndex, List<String> options, GameProcessPacketPipeline action, int finalSelectedIndex, int alignment) {
         super(7);
         this.label = label;
         this.selectedIndex = selectedIndex;

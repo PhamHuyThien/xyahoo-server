@@ -1,11 +1,13 @@
-package home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component;
+package home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component;
 
 import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 
-public class ImageDataComponent extends AComponent {
-    byte[] image;
+import java.util.List;
+
+public class MultiImageCreateComponent extends ACreateComponent {
+    List<Integer> imageIds;
     int width;
     int height;
     boolean isVisible;
@@ -14,9 +16,9 @@ public class ImageDataComponent extends AComponent {
     GameProcessPacketPipeline clickAction;
     byte alignment;
 
-    public ImageDataComponent(byte[] image, int width, int height, boolean isVisible, boolean hasBorder, String clickActionName, GameProcessPacketPipeline clickAction, byte alignment) {
-        super(12);
-        this.image = image;
+    public MultiImageCreateComponent(List<Integer> imageIds, int width, int height, boolean isVisible, boolean hasBorder, String clickActionName, GameProcessPacketPipeline clickAction, byte alignment) {
+        super(8);
+        this.imageIds = imageIds;
         this.width = width;
         this.height = height;
         this.isVisible = isVisible;
@@ -28,7 +30,10 @@ public class ImageDataComponent extends AComponent {
 
     @Override
     public void build(ByteBuf payload) {
-        XByteBuf.writeByteArray(payload, image);
+        payload.writeByte(imageIds.size());
+        for (Integer imageId : imageIds) {
+            payload.writeInt(imageId);
+        }
         payload.writeInt(width);
         payload.writeInt(height);
         payload.writeBoolean(isVisible);

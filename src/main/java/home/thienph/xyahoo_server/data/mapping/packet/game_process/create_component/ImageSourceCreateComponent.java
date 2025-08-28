@@ -1,10 +1,10 @@
-package home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component;
+package home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component;
 
 import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 
-public class ImageSourceComponent extends AComponent {
+public class ImageSourceCreateComponent extends ACreateComponent {
     int imageResourceId;
     int width;
     int height;
@@ -14,7 +14,7 @@ public class ImageSourceComponent extends AComponent {
     GameProcessPacketPipeline clickAction;
     byte alignment;
 
-    public ImageSourceComponent(int imageResourceId, int width, int height, boolean isVisible, boolean hasBorder, String clickActionName, GameProcessPacketPipeline clickAction, byte alignment) {
+    public ImageSourceCreateComponent(int imageResourceId, int width, int height, boolean isVisible, boolean hasBorder, String clickActionName, GameProcessPacketPipeline clickAction, byte alignment) {
         super(6);
         this.imageResourceId = imageResourceId;
         this.width = width;

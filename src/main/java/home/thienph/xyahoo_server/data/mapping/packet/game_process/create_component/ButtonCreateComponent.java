@@ -1,15 +1,15 @@
-package home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component;
+package home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component;
 
 import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 
-public class ButtonComponent extends AComponent {
+public class ButtonCreateComponent extends ACreateComponent {
     String label;
     int width;
     GameProcessPacketPipeline action;
 
-    public ButtonComponent(String label, int width, GameProcessPacketPipeline action) {
+    public ButtonCreateComponent(String label, int width, GameProcessPacketPipeline action) {
         super(17);
         this.label = label;
         this.width = width;

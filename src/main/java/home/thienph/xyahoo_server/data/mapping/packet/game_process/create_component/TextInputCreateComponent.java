@@ -1,17 +1,17 @@
-package home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component;
+package home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component;
 
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 import lombok.Builder;
 
 @Builder
-public class TextInputComponent extends AComponent {
+public class TextInputCreateComponent extends ACreateComponent {
     String label;
     int maxLength;
     int inputType;
     byte alignment;
 
-    public TextInputComponent(String label, int maxLength, int inputType, byte alignment) {
+    public TextInputCreateComponent(String label, int maxLength, int inputType, byte alignment) {
         super(0);
         this.label = label;
         this.maxLength = maxLength;

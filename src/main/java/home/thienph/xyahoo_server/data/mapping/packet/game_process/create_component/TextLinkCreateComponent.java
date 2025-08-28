@@ -1,17 +1,17 @@
-package home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component;
+package home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component;
 
 import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 
-public class TextLinkComponent extends AComponent {
+public class TextLinkCreateComponent extends ACreateComponent {
     String text;
     int width;
     int textColor;
     GameProcessPacketPipeline action;
     byte alignment;
 
-    public TextLinkComponent(String text, int width, int textColor, GameProcessPacketPipeline action) {
+    public TextLinkCreateComponent(String text, int width, int textColor, GameProcessPacketPipeline action) {
         super(4);
         this.text = text;
         this.width = width;

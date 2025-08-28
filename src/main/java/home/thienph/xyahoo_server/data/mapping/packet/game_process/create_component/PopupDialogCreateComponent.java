@@ -1,15 +1,16 @@
-package home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component;
+package home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component;
 
 import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 
-public class PopupDialogComponent extends AComponent {
+public class PopupDialogCreateComponent extends ACreateComponent {
+    public static final int DIALOG_TYPE_OK = 0;
     String message;
-    byte dialogType;
+    int dialogType;
     GameProcessPacketPipeline clickAction;
 
-    public PopupDialogComponent(String message, byte dialogType, GameProcessPacketPipeline clickAction) {
+    public PopupDialogCreateComponent(String message, int dialogType, GameProcessPacketPipeline clickAction) {
         super(16);
         this.message = message;
         this.dialogType = dialogType;

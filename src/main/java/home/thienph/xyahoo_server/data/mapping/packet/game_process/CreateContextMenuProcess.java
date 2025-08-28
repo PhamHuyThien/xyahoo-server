@@ -7,10 +7,13 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 public class CreateContextMenuProcess implements IGameProcessPacketPipeline {
-    byte menuType; // 0,1,2
+    public static final int MENU_TYPE_LEFT = 0;
+    public static final int MENU_TYPE_CENTER = 1;
+    public static final int MENU_TYPE_RIGHT = 2;
+    int menuType; // 0,1,2
     List<ContextMenu> contextMenus;
 
-    public CreateContextMenuProcess(byte menuType, List<ContextMenu> contextMenus) {
+    public CreateContextMenuProcess(int menuType, List<ContextMenu> contextMenus) {
         this.menuType = menuType;
         this.contextMenus = contextMenus;
     }

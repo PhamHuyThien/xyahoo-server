@@ -4,17 +4,17 @@ import home.thienph.xyahoo_server.constants.CommandGetUIConstant;
 import home.thienph.xyahoo_server.constants.ComponentConstant;
 import home.thienph.xyahoo_server.constants.ScreenConstant;
 import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
+import home.thienph.xyahoo_server.data.mapping.packet.game_process.CreateComponentProcess;
 import home.thienph.xyahoo_server.data.mapping.packet.game_process.GetDataUIComponentProcess;
 import home.thienph.xyahoo_server.data.mapping.packet.game_process.NewDialogProcess;
-import home.thienph.xyahoo_server.data.mapping.packet.game_process.UIComponentProcess;
-import home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component.GridComponent;
+import home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component.GridCreateComponent;
 import home.thienph.xyahoo_server.data.resources.GetDataComponent;
+import home.thienph.xyahoo_server.data.resources.GridComp;
 import home.thienph.xyahoo_server.managers.GameManager;
 import io.netty.channel.Channel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,16 +24,16 @@ public class HomeService {
 
     public void showHome(Channel channel) {
         GameProcessPacketPipeline pipeline = GameProcessPacketPipeline.newInstance()
-                .addPipeline(() -> new NewDialogProcess(ScreenConstant.MAIN_SCREEN_TITLE, ScreenConstant.MAIN_SCREEN_ID, true))
+                .addPipeline(() -> NewDialogProcess.createDefault(ScreenConstant.MAIN_SCREEN_TITLE, ScreenConstant.MAIN_SCREEN_ID))
                 .addPipeline(() -> {
-                    GameProcessPacketPipeline homeAction = GameProcessPacketPipeline.newInstance()
+                    var homeAction = GameProcessPacketPipeline.newInstance()
                             .addPipeline(() -> {
-                                List<GetDataComponent> componentsAction = new ArrayList<>();
-                                componentsAction.add(new GetDataComponent((byte) 0, 1, ScreenConstant.MAIN_SCREEN_ID, ScreenConstant.FRIEND_SCREEN_ID, false, null));
+                                var componentsAction = List.of(GetDataComponent.createGetDataIntegerDefault(ScreenConstant.MAIN_SCREEN_ID, ScreenConstant.FRIEND_SCREEN_ID));
                                 return new GetDataUIComponentProcess(CommandGetUIConstant.HOME_SELECT_INDEX, componentsAction);
                             });
-                    GridComponent homeGrid = new GridComponent(40, 40, true, gameManager.getGameHomes(), homeAction);
-                    return new UIComponentProcess(ScreenConstant.MAIN_SCREEN_ID, ComponentConstant.MAIN_GRID_COMPONENT_ID, homeGrid);
+                    var gridHomeData = gameManager.getGameHomes().stream().map(GridComp::new).toList();
+                    var homeGridComp = GridCreateComponent.createDefault(gridHomeData, homeAction);
+                    return new CreateComponentProcess(ScreenConstant.MAIN_SCREEN_ID, ComponentConstant.MAIN_GRID_COMPONENT_ID, homeGridComp);
                 })
                 .endPipeline();
         channel.writeAndFlush(pipeline.build().getPacket());

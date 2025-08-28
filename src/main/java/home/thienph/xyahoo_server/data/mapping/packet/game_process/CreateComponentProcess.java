@@ -1,6 +1,6 @@
 package home.thienph.xyahoo_server.data.mapping.packet.game_process;
 
-import home.thienph.xyahoo_server.data.mapping.packet.game_process.ui_component.AComponent;
+import home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component.ACreateComponent;
 import io.netty.buffer.ByteBuf;
 import lombok.*;
 
@@ -9,10 +9,10 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Builder
-public class UIComponentProcess implements IGameProcessPacketPipeline {
+public class CreateComponentProcess implements IGameProcessPacketPipeline {
     int dialogId;
     int componentId;
-    AComponent component;
+    ACreateComponent component;
 
     @Override
     public void build(ByteBuf payload) {

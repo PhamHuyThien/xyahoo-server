@@ -15,4 +15,6 @@ public class ScreenConstant {
     public static final int MEDIA_SCREEN_ID = 11119;
     public static final int ENTERTAINMENT_SCREEN_ID = 11120;
     public static final int TOP_SCREEN_ID = 11121;
+    public static final int ROOM_LIST_FRIEND_SCREEN_ID = 11122;
+    public static final String ROOM_LIST_FRIEND_SCREEN_NAME = "Danh sách người tham gia";
 }

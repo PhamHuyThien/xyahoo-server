@@ -10,4 +10,5 @@ import java.util.List;
 public interface RoomRepo extends JpaRepository<RoomEntity, Long> {
 
     List<RoomEntity> findAllByExpireAtIsNullOrExpireAtAfter(Date expireAt);
+    boolean existsByRoomName(String roomName);
 }

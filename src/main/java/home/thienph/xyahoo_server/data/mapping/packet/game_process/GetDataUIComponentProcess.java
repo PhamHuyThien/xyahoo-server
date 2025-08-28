@@ -24,7 +24,7 @@ public class GetDataUIComponentProcess implements IGameProcessPacketPipeline {
         payload.writeInt(requestId);
         payload.writeInt(components.size());
         for (GetDataComponent component : components) {
-            byte datType = component.getDataType();
+            int datType = component.getDataType();
             int sourceType = component.getSourceType();
             payload.writeByte(datType);
             payload.writeByte(sourceType);
