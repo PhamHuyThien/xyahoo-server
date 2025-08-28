@@ -7,4 +7,5 @@ public class CommandGetUIConstant {
     public static final int ROOM_REFRESH_ROOM = 1003;
     public static final int ROOM_FRIEND_LIST_IN_ROOM_ADD_FRIEND = 1004;
     public static final int ROOM_FRIEND_LIST_IN_ROOM_REFRESH_LIST = 1005;
+    public static final int ROOM_ADD_USER_IN_ROOM = 1006;
 }

@@ -25,4 +25,6 @@ public class ClientCommandConst {
     public static final int USER_CHAT = 5000023;
     public static final int USER_BUZZ = 5000016;
     public static final int VIEW_USER_IN_ROOM = 4811;
+    public static final int ROOM_INVITE_USER = 4806;
+    public static final int ACCEPT_INVITE_ROOM = 4808;
 }

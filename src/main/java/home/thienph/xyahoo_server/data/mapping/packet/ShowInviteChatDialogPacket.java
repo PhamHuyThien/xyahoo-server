@@ -6,23 +6,23 @@ import home.thienph.xyahoo_server.utils.XByteBuf;
 public class ShowInviteChatDialogPacket extends APacketPipeline {
     String userInvite;
     String roomName;
-    String string1;
-    String string2;
+    String roomKey;
+    String password;
 
-    public ShowInviteChatDialogPacket(String userInvite, String roomName, String string1, String string2) {
+    public ShowInviteChatDialogPacket(String userInvite, String roomName, String roomKey, String password) {
         super(4807);
         this.userInvite = userInvite;
         this.roomName = roomName;
-        this.string1 = string1;
-        this.string2 = string2;
+        this.roomKey = roomKey;
+        this.password = password;
     }
 
     @Override
     public APacketPipeline build() {
         XByteBuf.writeString(packet.getPayload(), userInvite);
         XByteBuf.writeString(packet.getPayload(), roomName);
-        XByteBuf.writeString(packet.getPayload(), string1);
-        XByteBuf.writeString(packet.getPayload(), string2);
+        XByteBuf.writeString(packet.getPayload(), roomKey);
+        XByteBuf.writeString(packet.getPayload(), password);
         return this;
     }
 }

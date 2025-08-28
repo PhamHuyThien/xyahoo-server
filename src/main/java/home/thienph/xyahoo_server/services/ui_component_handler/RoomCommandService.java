@@ -1,5 +1,7 @@
 package home.thienph.xyahoo_server.services.ui_component_handler;
 
+import home.thienph.xyahoo_server.data.mapping.packet.JoinChatRoomPacket;
+import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.entities.RoomEntity;
 import home.thienph.xyahoo_server.entities.RoomGroupEntity;
@@ -50,5 +52,23 @@ public class RoomCommandService {
 
         gameManager.loadAllRoomContexts();
         homeCommandService.homeSelectRoom(channel, null);
+    }
+
+    public void joinChatRoom(Channel channel, String roomKey) {
+        if (roomKey == null || roomKey.isEmpty()) return;
+
+        UserContext userContext = gameManager.getUserContext(channel);
+        RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
+        if (roomContext == null) return;
+
+        if (!roomContext.getChannels().contains(channel)) {
+            roomContext.getChannels().add(channel);
+            roomContext.getUsers().add(userContext);
+            roomContext.update();
+        }
+
+        long roomOwnerId = roomContext.getRoom().getUserOwnerId() == null ? -999L : roomContext.getRoom().getUserOwnerId();
+        JoinChatRoomPacket joinChatRoomPacket = new JoinChatRoomPacket(true, roomContext.getRoom().getRoomName(), roomKey, roomOwnerId);
+        channel.writeAndFlush(joinChatRoomPacket.build().getPacket());
     }
 }

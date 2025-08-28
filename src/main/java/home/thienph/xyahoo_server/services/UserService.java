@@ -15,6 +15,7 @@ import home.thienph.xyahoo_server.repositories.UserBlockFriendRepo;
 import home.thienph.xyahoo_server.repositories.UserFriendRepo;
 import home.thienph.xyahoo_server.repositories.UserFriendRequestRepo;
 import home.thienph.xyahoo_server.repositories.UserRepo;
+import home.thienph.xyahoo_server.utils.XPacket;
 import io.netty.channel.Channel;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,11 +72,15 @@ public class UserService {
         UserEntity userWantFriend = userRepo.findByUsername(req.getUsername()).orElse(null);
         if (userWantFriend == null) return;
         if (userFriendRequestRepo.findByUsernameAndUsernameRequest(userContext.getUsername(), userWantFriend.getUsername()) != null
-            || userFriendRequestRepo.findByUsernameAndUsernameRequest(userWantFriend.getUsername(), userContext.getUsername()) != null)
+            || userFriendRequestRepo.findByUsernameAndUsernameRequest(userWantFriend.getUsername(), userContext.getUsername()) != null) {
+            XPacket.showSimpleDialog(channel, "Bạn hoặc đối phương đã gửi yêu cầu kết bạn");
             return;
+        }
         if (userBlockFriendRepo.findByUsernameAndUsernameBlock(userContext.getUsername(), userWantFriend.getUsername()) != null
-            || userBlockFriendRepo.findByUsernameAndUsernameBlock(userWantFriend.getUsername(), userContext.getUsername()) != null)
+            || userBlockFriendRepo.findByUsernameAndUsernameBlock(userWantFriend.getUsername(), userContext.getUsername()) != null){
+            XPacket.showSimpleDialog(channel, "Không thể kết bạn với người này");
             return;
+        }
         UserFriendRequestEntity userFriendRequestEntity = new UserFriendRequestEntity();
         userFriendRequestEntity.setUsername(userWantFriend.getUsername());
         userFriendRequestEntity.setUsernameRequest(userContext.getUsername());

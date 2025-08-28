@@ -1,6 +1,7 @@
 package home.thienph.xyahoo_server.data.mapping;
 
 import home.thienph.xyahoo_server.data.base.Packet;
+import io.netty.channel.Channel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,4 +23,8 @@ public abstract class APacketPipeline {
     }
 
     public abstract APacketPipeline build();
+
+    public void flush(Channel channel) {
+        channel.writeAndFlush(packet);
+    }
 }
