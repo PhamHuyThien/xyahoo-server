@@ -3,10 +3,7 @@ package home.thienph.xyahoo_server.controllers.ui_component_handler;
 import home.thienph.xyahoo_server.anotations.CommandMapping;
 import home.thienph.xyahoo_server.anotations.UIComponentController;
 import home.thienph.xyahoo_server.constants.CommandGetUIConstant;
-import home.thienph.xyahoo_server.data.mapping.packet.JoinChatRoomPacket;
-import home.thienph.xyahoo_server.data.mapping.packet.ShowInviteChatDialogPacket;
 import home.thienph.xyahoo_server.data.requests.AddFriendReq;
-import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.managers.GameManager;
 import home.thienph.xyahoo_server.services.ChatService;
@@ -79,33 +76,28 @@ public class RoomCommandController {
 
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_FRIEND_LIST_IN_ROOM_REFRESH_LIST)
-    public void roomRefreshList(Channel channel, ByteBuf payload) {
+    public void roomRefreshListUserInRoom(Channel channel, ByteBuf payload) {
         UserContext userContext = gameManager.getUserContext(channel);
         String username = XByteBuf.readString(payload);
         payload.readByte();
-        gameManager.getRoomContexts().stream().filter(roomContext ->
-                        roomContext.getUsers().stream().anyMatch(user -> user.getUsername().equals(username))).findFirst()
-                .ifPresent(roomContext -> chatService.showFriendInRoom(channel, roomContext.getRoom().getRoomKey()));
+        roomCommandService.refreshListUserInRoom(channel, username);
     }
 
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_ADD_USER_IN_ROOM)
     public void roomAddUserInRoom(Channel channel, ByteBuf payload) {
-        UserContext userContext = gameManager.getUserContext(channel);
-        String username = XByteBuf.readString(payload).trim();
+        String usernameInvite = XByteBuf.readString(payload).trim();
         payload.readByte();
-        if (username.isEmpty()) return;
-        Channel userChannelInvite = gameManager.getChannelByUsername(username);
-        if (userChannelInvite == null) return;
-        RoomContext currentOwnerRoom = gameManager.getRoomContexts().stream().filter(roomContext ->
-                        roomContext.getUsers().stream().anyMatch(user -> user.getUsername().equals(userContext.getUsername())))
-                .findFirst().orElse(null);
-        if (currentOwnerRoom == null) return;
-        new ShowInviteChatDialogPacket(
-                userContext.getUsername(),
-                currentOwnerRoom.getRoom().getRoomName(),
-                currentOwnerRoom.getRoom().getRoomKey(),
-                currentOwnerRoom.getRoom().getPassword()
-        ).build().flush(userChannelInvite);
+        roomCommandService.roomAddUserInRoom(channel, usernameInvite);
+    }
+
+    @SneakyThrows
+    @CommandMapping(commandId = CommandGetUIConstant.ROOM_FRIEND_LIST_IN_ROOM_KICK_USER)
+    public void roomKickUser(Channel channel, ByteBuf payload) {
+        UserContext userContext = gameManager.getUserContext(channel);
+        String usernameKick = XByteBuf.readString(payload).trim();
+        payload.readByte();
+        roomCommandService.roomKickUserInRoom(channel, usernameKick);
+        roomCommandService.refreshListUserInRoom(channel, userContext.getUsername());
     }
 }

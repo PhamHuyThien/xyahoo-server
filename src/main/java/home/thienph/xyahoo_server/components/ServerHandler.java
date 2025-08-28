@@ -35,18 +35,13 @@ public class ServerHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        gameManager.getUserContexts().get(ctx.channel()).destroy();
-        gameManager.getUserContexts().remove(ctx.channel());
-        gameManager.getRoomContexts().forEach(roomContext -> {
-            roomContext.getChannels().remove(ctx.channel());
-            roomContext.getUsers().remove(gameManager.getUserContext(ctx.channel()));
-        });
+        gameManager.destroySessionUser(ctx.channel());
         log.debug("Client disconnected: {}", ctx.channel().remoteAddress());
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        gameManager.getUserContexts().get(ctx.channel()).destroy();
+        gameManager.destroySessionUser(ctx.channel());
         ctx.close();
         log.debug("Client disconnected: {}", ctx.channel().remoteAddress(), cause);
     }

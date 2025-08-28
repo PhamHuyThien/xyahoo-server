@@ -1,5 +1,7 @@
 package home.thienph.xyahoo_server.managers;
 
+import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
+import home.thienph.xyahoo_server.data.mapping.packet.game_process.DestroyScreenByTitleProcess;
 import home.thienph.xyahoo_server.data.users.ResourceContext;
 import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
@@ -121,6 +123,23 @@ public class GameManager {
         return userContexts.get(channel);
     }
 
+    public UserContext getUserContextById(long userId) {
+        return userContexts.values().stream().filter(userContext -> userId == userContext.getId()).findFirst().orElse(null);
+    }
+
+    public UserContext getUserContextByUsername(String username) {
+        return userContexts.values().stream().filter(userContext -> username.equals(userContext.getUsername())).findFirst().orElse(null);
+    }
+
+    public void kickUserOutRoomByUserContext(RoomContext roomContext, UserContext userContext) {
+        Channel channel = getChannelByUsername(userContext.getUsername());
+        roomContext.getChannels().remove(channel);
+        roomContext.getUsers().remove(userContext);
+        GameProcessPacketPipeline.newInstance()
+                .addPipeline(new DestroyScreenByTitleProcess("P. " + roomContext.getRoom().getRoomName()))
+                .endPipeline().build().flushPipeline(channel);
+    }
+
     public ResourceContext getResourceContextById(int resourceId) {
         return resourceContexts.stream()
                 .filter(resourceContext -> resourceId == resourceContext.getResourceEntity().getResourceId())
@@ -129,5 +148,14 @@ public class GameManager {
 
     public RoomContext getRoomContextByRoomKey(String roomKey) {
         return roomContexts.stream().filter(roomContext -> roomContext.getRoom().getRoomKey().equals(roomKey)).findFirst().orElse(null);
+    }
+
+    public void destroySessionUser(Channel channel) {
+        userContexts.get(channel).destroy();
+        userContexts.remove(channel);
+        roomContexts.forEach(roomContext -> {
+            roomContext.getChannels().remove(channel);
+            roomContext.getUsers().remove(getUserContext(channel));
+        });
     }
 }
