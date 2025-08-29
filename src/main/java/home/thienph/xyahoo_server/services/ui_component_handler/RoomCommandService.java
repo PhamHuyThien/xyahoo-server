@@ -63,12 +63,19 @@ public class RoomCommandService {
         homeCommandService.homeSelectRoom(userContext, null);
     }
 
-    public void joinChatRoom(UserContext userContext, String roomKey) {
+    public void joinChatRoom(UserContext userContext, String roomKey, String roomPassword) {
         if (roomKey == null || roomKey.isEmpty()) return;
-
 
         RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
         if (roomContext == null) return;
+
+        if (roomContext.getRoom().getPassword() != null
+            && !roomContext.getRoom().getPassword().isEmpty()
+            && (roomPassword == null || !roomPassword.equals(roomContext.getRoom().getPassword()))) {
+            chatService.showPopupInputPasswordRoom(userContext);
+            return;
+        }
+
 
         if (!roomContext.getUsers().contains(userContext)) {
             roomContext.getUsers().add(userContext);
@@ -177,5 +184,23 @@ public class RoomCommandService {
                     });
         });
         XPacket.showSimpleDialog(userContext, "Đổi tên phòng thành công");
+    }
+
+    public void roomChangePassword(UserContext userContext, String newPasswordRoom) {
+        if (newPasswordRoom == null || newPasswordRoom.isEmpty()) return;
+        RoomContext currentOwnerRoom = chatService.getCurrentOwnerRoom(userContext);
+        if (currentOwnerRoom == null) {
+            XPacket.showSimpleDialog(userContext, "Không tìm thấy phòng");
+            return;
+        }
+        if (!chatService.userIsOwnerRoom(userContext, currentOwnerRoom.getRoom().getRoomKey())) {
+            XPacket.showSimpleDialog(userContext, "Bạn không phải chủ phòng");
+            return;
+        }
+        currentOwnerRoom.getRoom().setPassword(newPasswordRoom);
+        currentOwnerRoom.getRoom().setUpdateAt(new Date());
+        roomRepo.save(currentOwnerRoom.getRoom());
+        currentOwnerRoom.update();
+        XPacket.showSimpleDialog(userContext, "Đổi mật khẩu phòng thành công");
     }
 }

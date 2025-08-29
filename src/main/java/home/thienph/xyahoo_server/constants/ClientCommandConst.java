@@ -28,4 +28,5 @@ public class ClientCommandConst {
     public static final int ROOM_INVITE_USER = 4806;
     public static final int ACCEPT_INVITE_ROOM = 4808;
     public static final int ROOM_RENAME_ROOM = 4813;
+    public static final int ROOM_CHANGE_PASSWORD_ROOM = 4810;
 }

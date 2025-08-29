@@ -125,4 +125,12 @@ public class ChatController {
         String roomKey = XByteBuf.readString(packet.getPayload());
         chatService.roomClickRenameRoom(userContext, roomKey);
     }
+
+    @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
+    @PacketMapping(commandId = ClientCommandConst.ROOM_CHANGE_PASSWORD_ROOM)
+    public void roomClickChangePasswordRoom(UserContext userContext, Packet packet) {
+        String roomKey = XByteBuf.readString(packet.getPayload());
+        chatService.roomClickChangePasswordRoom(userContext, roomKey);
+    }
 }

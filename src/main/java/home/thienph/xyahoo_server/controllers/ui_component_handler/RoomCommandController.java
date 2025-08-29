@@ -39,7 +39,7 @@ public class RoomCommandController {
     public void joinChatRoom(UserContext userContext, ByteBuf payload) {
         String roomKey = XByteBuf.readString(payload);
         payload.readByte();
-        roomCommandService.joinChatRoom(userContext, roomKey);
+        roomCommandService.joinChatRoom(userContext, roomKey, null);
     }
 
     @SneakyThrows
@@ -107,4 +107,21 @@ public class RoomCommandController {
         payload.readByte();
         roomCommandService.roomRenameRoom(userContext, newRoomName);
     }
+
+    @SneakyThrows
+    @CommandMapping(commandId = CommandGetUIConstant.ROOM_CHANGE_PASSWORD_ROOM)
+    public void roomChangePassword(UserContext userContext, ByteBuf payload) {
+        String newPasswordRoom = XByteBuf.readString(payload).trim();
+        payload.readByte();
+        roomCommandService.roomChangePassword(userContext, newPasswordRoom);
+    }
+
+    @SneakyThrows
+    @CommandMapping(commandId = CommandGetUIConstant.ROOM_INPUT_PASSWORD_ROOM)
+    public void roomLeaveRoom(UserContext userContext, ByteBuf payload) {
+        payload.readByte();
+//        roomCommandService.roomLeaveRoom(userContext);
+    }
+
+
 }

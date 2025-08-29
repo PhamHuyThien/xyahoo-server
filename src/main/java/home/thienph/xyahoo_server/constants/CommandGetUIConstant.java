@@ -10,4 +10,6 @@ public class CommandGetUIConstant {
     public static final int ROOM_ADD_USER_IN_ROOM = 1006;
     public static final int ROOM_FRIEND_LIST_IN_ROOM_KICK_USER = 1007;
     public static final int ROOM_RENAME_ROOM = 1008;
+    public static final int ROOM_CHANGE_PASSWORD_ROOM = 1009;
+    public static final int ROOM_INPUT_PASSWORD_ROOM = 1010;
 }
