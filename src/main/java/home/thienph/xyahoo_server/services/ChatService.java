@@ -123,4 +123,21 @@ public class ChatService {
             return new CreateContextMenuProcess(CreateContextMenuProcess.MENU_TYPE_CENTER, contextMenus);
         });
     }
+
+    public void roomClickRenameRoom(UserContext userContext, String roomKey) {
+        if (!userIsOwnerRoom(userContext, roomKey)) return;
+        GameProcessPacketPipeline.newInstance()
+                .addPipeline(() -> {
+                    GameProcessPacketPipeline actionConfirmCreateRoom = GameProcessPacketPipeline.newInstance()
+                            .addPipeline(() -> {
+                                var componentsAction = List.of(GetDataComponent.createGetDataStringDefault(ScreenConstant.DEFAULT_SCREEN_ID, ComponentConstant.ROOM_RENAME_COMPONENT_ID));
+                                return new GetDataUIComponentProcess(CommandGetUIConstant.ROOM_RENAME_ROOM, componentsAction);
+                            });
+                    var popupDialogComponent = new PopupDialogCreateComponent("Vui lòng nhập tên phòng mới:", PopupDialogCreateComponent.DIALOG_TYPE_OK, actionConfirmCreateRoom);
+                    return new CreateComponentProcess(ScreenConstant.DEFAULT_SCREEN_ID, ComponentConstant.ROOM_RENAME_COMPONENT_ID, popupDialogComponent);
+                })
+                .addPipeline(() -> new ShowTextInputDialogProcess(ScreenConstant.DEFAULT_SCREEN_ID, ComponentConstant.ROOM_RENAME_COMPONENT_ID))
+                .addPipeline(new FocusComponentProcess(ScreenConstant.DEFAULT_SCREEN_ID, ComponentConstant.ROOM_RENAME_COMPONENT_ID))
+                .endPipeline().build().flushPipeline(userContext);
+    }
 }

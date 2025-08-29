@@ -65,7 +65,7 @@ public class ChatController {
         roomContext.getUsers().remove(userContext);
         roomContext.update();
 
-        homeCommandService.homeSelectRoom(userContext, packet.getPayload());
+//        homeCommandService.homeSelectRoom(userContext, packet.getPayload());
 
         GameProcessPacketPipeline.newInstance()
                 .addPipeline(new DestroyScreenProcess(ScreenConstant.ROOM_LIST_FRIEND_SCREEN_ID))
@@ -116,5 +116,13 @@ public class ChatController {
         String roomKey = XByteBuf.readString(packet.getPayload());
         String password = XByteBuf.readString(packet.getPayload());
         chatService.acceptInviteJoinRoom(userContext, roomKey, password);
+    }
+
+    @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
+    @PacketMapping(commandId = ClientCommandConst.ROOM_RENAME_ROOM)
+    public void roomClickRenameRoom(UserContext userContext, Packet packet) {
+        String roomKey = XByteBuf.readString(packet.getPayload());
+        chatService.roomClickRenameRoom(userContext, roomKey);
     }
 }

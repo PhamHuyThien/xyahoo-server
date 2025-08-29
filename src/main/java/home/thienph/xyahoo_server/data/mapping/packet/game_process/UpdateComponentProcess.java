@@ -4,7 +4,7 @@ import home.thienph.xyahoo_server.data.mapping.IPipeline;
 import home.thienph.xyahoo_server.data.mapping.packet.game_process.update_component.AUpdateComponent;
 import home.thienph.xyahoo_server.data.users.UserContext;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +44,7 @@ public class UpdateComponentProcess implements IGameProcessPacketPipeline, IPipe
     }
 
     @Override
-    public void flushPipeline(UserContext userContext) {
+    public ChannelFuture flushPipeline(UserContext userContext) {
+        throw new UnsupportedOperationException();
     }
 }

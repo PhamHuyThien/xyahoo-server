@@ -9,7 +9,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AppContext {
     @Getter
     private static ApplicationContext context;
@@ -18,7 +17,7 @@ public class AppContext {
     ApplicationContext applicationContext;
 
     @PostConstruct
-    private void init() {
+    public void init() {
         context = applicationContext;
     }
 

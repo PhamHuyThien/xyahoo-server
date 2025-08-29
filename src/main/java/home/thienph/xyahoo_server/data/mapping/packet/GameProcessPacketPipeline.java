@@ -7,7 +7,7 @@ import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -48,8 +48,8 @@ public class GameProcessPacketPipeline extends APacketPipeline implements IPipel
     }
 
     @Override
-    public void flushPipeline(UserContext userContext) {
-        userContext.getChannel().writeAndFlush(packet);
+    public ChannelFuture flushPipeline(UserContext userContext) {
+        return userContext.getChannel().writeAndFlush(packet);
     }
 
     @Override

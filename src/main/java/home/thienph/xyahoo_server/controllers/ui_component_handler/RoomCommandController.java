@@ -99,4 +99,12 @@ public class RoomCommandController {
         roomCommandService.roomKickUserInRoom(userContext, usernameKick);
         roomCommandService.refreshListUserInRoom(userContext, userContext.getUsername());
     }
+
+    @SneakyThrows
+    @CommandMapping(commandId = CommandGetUIConstant.ROOM_RENAME_ROOM)
+    public void roomRenameRoom(UserContext userContext, ByteBuf payload) {
+        String newRoomName = XByteBuf.readString(payload).trim();
+        payload.readByte();
+        roomCommandService.roomRenameRoom(userContext, newRoomName);
+    }
 }

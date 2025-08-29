@@ -142,4 +142,40 @@ public class RoomCommandService {
                 .ifPresent(roomContext -> chatService.showFriendInRoom(userContext, roomContext.getRoom().getRoomKey()));
     }
 
+    public void roomRenameRoom(UserContext userContext, String newRoomName) {
+        if (newRoomName == null || newRoomName.isEmpty()) return;
+        RoomContext currentOwnerRoom = chatService.getCurrentOwnerRoom(userContext);
+        if (currentOwnerRoom == null) {
+            XPacket.showSimpleDialog(userContext, "Không tìm thấy phòng");
+            return;
+        }
+        if (!chatService.userIsOwnerRoom(userContext, currentOwnerRoom.getRoom().getRoomKey())) {
+            XPacket.showSimpleDialog(userContext, "Bạn không phải chủ phòng");
+            return;
+        }
+
+        String oldRoomName = currentOwnerRoom.getRoom().getRoomName();
+
+        currentOwnerRoom.getRoom().setRoomName(newRoomName);
+        currentOwnerRoom.getRoom().setUpdateAt(new Date());
+        roomRepo.save(currentOwnerRoom.getRoom());
+        currentOwnerRoom.update();
+
+
+        currentOwnerRoom.getUsers().forEach(user -> {
+            GameProcessPacketPipeline.newInstance()
+                    .addPipeline(new SwitchScreenProcess(ScreenConstant.ROOM_SCREEN_ID))
+                    .addPipeline(new DestroyScreenByTitleProcess("P. " + oldRoomName)).endPipeline()
+                    .endPipeline().build().flushPipeline(user)
+                    .addListener(future -> {
+                        if (future.isSuccess()) {
+                            Thread.sleep(50);
+                            chatService.acceptInviteJoinRoom(user,
+                                    currentOwnerRoom.getRoom().getRoomKey(),
+                                    currentOwnerRoom.getRoom().getPassword());
+                        }
+                    });
+        });
+        XPacket.showSimpleDialog(userContext, "Đổi tên phòng thành công");
+    }
 }
