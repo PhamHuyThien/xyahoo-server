@@ -5,17 +5,12 @@ import home.thienph.xyahoo_server.anotations.PacketMapping;
 import home.thienph.xyahoo_server.data.base.Packet;
 import home.thienph.xyahoo_server.data.exceptions.UnauthorizedException;
 import home.thienph.xyahoo_server.data.users.UserContext;
-import home.thienph.xyahoo_server.managers.GameManager;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
 import java.lang.reflect.InvocationTargetException;
@@ -25,7 +20,6 @@ import java.util.Map;
 
 @Slf4j
 @Configuration
-@DependsOn("gameManager")
 public class PacketHandlerRegistry {
 
     private final Map<String, Method> handlerPacketMap = new HashMap<>();
@@ -34,8 +28,6 @@ public class PacketHandlerRegistry {
 
     @Autowired
     private ApplicationContext context;
-    @Autowired
-    GameManager gameManager;
     @Autowired
     private ExceptionHandlerRegistry exceptionHandlerRegistry;
 
@@ -62,7 +54,7 @@ public class PacketHandlerRegistry {
     }
 
     @SneakyThrows
-    public void handle(ChannelHandlerContext ctx, Packet packet) {
+    public void handle(UserContext userContext, Packet packet) {
         int commandId = packet.getCommandId();
         int typeId = packet.getTypeId();
 
@@ -76,10 +68,10 @@ public class PacketHandlerRegistry {
         }
         if (method != null && bean != null) {
             try {
-                checkRole(ctx.channel(), key);
-                method.invoke(bean, ctx.channel(), packet);
+                checkRole(userContext, key);
+                method.invoke(bean, userContext, packet);
             } catch (InvocationTargetException e) {
-                exceptionHandlerRegistry.handleException(ctx.channel(), packet, e.getCause());
+                exceptionHandlerRegistry.handleException(userContext, packet, e.getCause());
             }
         } else {
             log.warn("PacketMapping / No handler found for commandId={}, typeId={}", commandId, typeId);
@@ -91,10 +83,9 @@ public class PacketHandlerRegistry {
         return commandId + ":" + typeId;
     }
 
-    private void checkRole(Channel channel, String key) {
+    private void checkRole(UserContext userContext, String key) {
         String[] roles = handlerRoleMap.get(key);
         if (roles != null && roles.length > 0) {
-            UserContext userContext = gameManager.getUserContext(channel);
             if (userContext != null && userContext.isLogin() && userContext.getUser() != null) {
                 for (String role : roles) {
                     if (userContext.getUser().getRole().equals(role)) return;

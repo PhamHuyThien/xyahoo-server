@@ -4,12 +4,10 @@ import io.netty.buffer.ByteBuf;
 import lombok.Data;
 
 @Data
-public class ReqReloadDataReq implements MappingRequestPayload<ReqReloadDataReq> {
+public class ReqReloadDataReq {
     int sourceId;
 
-    @Override
-    public ReqReloadDataReq mapping(ByteBuf payload) {
+    public ReqReloadDataReq(ByteBuf payload) {
         sourceId = payload.readInt();
-        return this;
     }
 }

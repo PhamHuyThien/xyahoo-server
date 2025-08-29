@@ -25,8 +25,6 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AuthService {
     @Autowired
-    SimulatorService simulatorService;
-    @Autowired
     GameManager gameManager;
     @Autowired
     ResourceService resourceService;
@@ -38,34 +36,33 @@ public class AuthService {
     UserRepo userRepo;
 
     @SneakyThrows
-    public void login(Channel channel, LoginReq loginReq) {
+    public void login(UserContext userContext, LoginReq loginReq) {
         if (Strings.isBlank(loginReq.getUsername()) || Strings.isBlank(loginReq.getPassword())) return;
 
         Optional<UserEntity> userEntityOptional = userRepo.findFirstByUsernameAndPassword(loginReq.getUsername(), loginReq.getPassword());
         if (userEntityOptional.isEmpty()) {
-            channel.writeAndFlush(new LoginFailedPacket().build().getPacket());
+            userContext.getChannel().writeAndFlush(new LoginFailedPacket().build().getPacket());
             return;
         }
-        Channel oldChannel = gameManager.getChannelByUsername(loginReq.getUsername());
-        if (oldChannel != null) oldChannel.close();
+        UserContext oldUserSession = gameManager.getUserContextByUsername(loginReq.getUsername());
+        if (oldUserSession != null) gameManager.destroySessionUserByChannelId(oldUserSession.getChannelId());
 
-        UserContext userContext = gameManager.getUserContext(channel);
         userContext.setUser(userEntityOptional.get());
-        userContext.setId(userEntityOptional.get().getId());
+        userContext.setUserId(userEntityOptional.get().getId());
         userContext.setUsername(userEntityOptional.get().getUsername());
         userContext.setLogin(true);
 
-        resourceService.loadResource(channel);
-        userService.updateUserInfoAndFriendId(channel, userContext);
-        homeService.showHome(channel);
+        resourceService.loadResource(userContext);
+        userService.updateUserInfoAndFriendId(userContext);
+        homeService.showHome(userContext);
     }
 
 
     @SneakyThrows
-    public void register(Channel channel, RegisterReq loginReq) {
+    public void register(UserContext userContext, RegisterReq loginReq) {
         if (Strings.isBlank(loginReq.getUsername()) || Strings.isBlank(loginReq.getPassword())) return;
         if (userRepo.existsByUsername(loginReq.getUsername())) {
-            channel.writeAndFlush(new RegisterSuccessPacket().build().getPacket());
+            userContext.getChannel().writeAndFlush(new RegisterSuccessPacket().build().getPacket());
             return;
         }
         UserEntity userEntity = new UserEntity();
@@ -77,6 +74,6 @@ public class AuthService {
         userEntity.setStatus(1);
         userEntity.setCreateTime(new Date());
         userRepo.save(userEntity);
-        channel.writeAndFlush(new RegisterSuccessPacket().build().getPacket());
+        userContext.getChannel().writeAndFlush(new RegisterSuccessPacket().build().getPacket());
     }
 }

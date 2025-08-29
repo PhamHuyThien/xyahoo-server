@@ -16,7 +16,6 @@ import home.thienph.xyahoo_server.repositories.UserFriendRepo;
 import home.thienph.xyahoo_server.repositories.UserFriendRequestRepo;
 import home.thienph.xyahoo_server.repositories.UserRepo;
 import home.thienph.xyahoo_server.utils.XPacket;
-import io.netty.channel.Channel;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -39,46 +37,46 @@ public class UserService {
     @Autowired
     UserBlockFriendRepo userBlockFriendRepo;
 
-    public void getUserFriendList(Channel channel, int type) { //1 banbe, 2 tu choi, 3 moi ket ban
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void getUserFriendList(UserContext userContext, int type) { //1 banbe, 2 tu choi, 3 moi ket ban
+        
         List<UserFriendDto> userFriends = getUserFriendByType(userContext, type)
                 .stream().map(UserFriendDto::new)
                 .toList();
-        channel.writeAndFlush(new FriendListPacket(userFriends).build().getPacket());
+        userContext.getChannel().writeAndFlush(new FriendListPacket(userFriends).build().getPacket());
     }
 
-    public void updateStatusFriend(Channel channel, int type) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void updateStatusFriend(UserContext userContext, int type) {
+        
         List<UserFriendDto> userFriends = getUserFriendByType(userContext, type)
                 .stream().map(UserFriendDto::new)
                 .toList();
         List<UserFriendDto> usersFriendOnline = new ArrayList<>();
         for (UserFriendDto userFriendDto : userFriends) {
-            if (gameManager.getOptionalChannelByUsername(userFriendDto.getUsername()).isPresent()) {
+            if (gameManager.getUserContextByUsername(userFriendDto.getUsername()) != null) {
                 usersFriendOnline.add(userFriendDto);
             }
         }
-        channel.writeAndFlush(new UpdateStatusFriendListPacket(usersFriendOnline).build().getPacket());
+        userContext.getChannel().writeAndFlush(new UpdateStatusFriendListPacket(usersFriendOnline).build().getPacket());
     }
 
-    public void updateUserInfoAndFriendId(Channel channel, UserContext userContext) {
-        UpdateUserProfilePacket updateUserProfilePacket = new UpdateUserProfilePacket(userContext.getId(), null, null);
-        channel.writeAndFlush(updateUserProfilePacket.build().getPacket());
+    public void updateUserInfoAndFriendId(UserContext userContext) {
+        UpdateUserProfilePacket updateUserProfilePacket = new UpdateUserProfilePacket(userContext.getUserId(), null, null);
+        userContext.getChannel().writeAndFlush(updateUserProfilePacket.build().getPacket());
     }
 
-    public void requestAddFriend(Channel channel, AddFriendReq req) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void requestAddFriend(UserContext userContext, AddFriendReq req) {
+        
         if (userContext == null || req == null || Strings.isBlank(req.getUsername())) return;
         UserEntity userWantFriend = userRepo.findByUsername(req.getUsername()).orElse(null);
         if (userWantFriend == null) return;
         if (userFriendRequestRepo.findByUsernameAndUsernameRequest(userContext.getUsername(), userWantFriend.getUsername()) != null
             || userFriendRequestRepo.findByUsernameAndUsernameRequest(userWantFriend.getUsername(), userContext.getUsername()) != null) {
-            XPacket.showSimpleDialog(channel, "Bạn hoặc đối phương đã gửi yêu cầu kết bạn");
+            XPacket.showSimpleDialog(userContext, "Bạn hoặc đối phương đã gửi yêu cầu kết bạn");
             return;
         }
         if (userBlockFriendRepo.findByUsernameAndUsernameBlock(userContext.getUsername(), userWantFriend.getUsername()) != null
             || userBlockFriendRepo.findByUsernameAndUsernameBlock(userWantFriend.getUsername(), userContext.getUsername()) != null){
-            XPacket.showSimpleDialog(channel, "Không thể kết bạn với người này");
+            XPacket.showSimpleDialog(userContext, "Không thể kết bạn với người này");
             return;
         }
         UserFriendRequestEntity userFriendRequestEntity = new UserFriendRequestEntity();
@@ -88,12 +86,16 @@ public class UserService {
         userFriendRequestEntity.setCreateAt(new Date());
         userFriendRequestRepo.save(userFriendRequestEntity);
 
-        Optional<Channel> userFriendChannel = gameManager.getOptionalChannelByUsername(userWantFriend.getUsername());
-        userFriendChannel.ifPresent(value -> value.writeAndFlush(new AreYouAddFriendPacket(userContext.getUsername(), userContext.getId()).build().getPacket()));
+        UserContext userWantFriendContext = gameManager.getUserContextByUsername(userWantFriend.getUsername());
+        if (userWantFriendContext != null) {
+            userWantFriendContext.getChannel().writeAndFlush(new AreYouAddFriendPacket(
+                    userContext.getUsername(),
+                    userContext.getUserId()).build().getPacket());
+        }
     }
 
-    public void requestRejectApproveFriend(Channel channel, RejectApproveFriendReq req) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void requestRejectApproveFriend(UserContext userContext, RejectApproveFriendReq req) {
+        
         UserEntity userWantRejectApprove = userRepo.findById(req.getUserId()).orElse(null);
         if (userWantRejectApprove == null) return;
 
@@ -117,11 +119,11 @@ public class UserService {
         usersFriendRequest.setStatus(0);
         usersFriendRequest.setUpdateAt(new Date());
         userFriendRequestRepo.save(usersFriendRequest);
-        getUserFriendList(channel, UserConstant.TYPE_FRIEND_LIST_PENDING);
+        getUserFriendList(userContext, UserConstant.TYPE_FRIEND_LIST_PENDING);
     }
 
-    public void deleteFriendUser(Channel channel, long userId) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void deleteFriendUser(UserContext userContext, long userId) {
+        
 
         UserEntity userWantDeleteFriend = userRepo.findById(userId).orElse(null);
         if (userWantDeleteFriend == null) return;
@@ -138,11 +140,11 @@ public class UserService {
             usersFriendEntity.setUpdateAt(new Date());
             userFriendRepo.save(usersFriendEntity);
         }
-        getUserFriendList(channel, UserConstant.TYPE_FRIEND_LIST_ACCEPTED);
+        getUserFriendList(userContext, UserConstant.TYPE_FRIEND_LIST_ACCEPTED);
     }
 
-    public void blockFriendUser(Channel channel, long userId) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void blockFriendUser(UserContext userContext, long userId) {
+        
         UserEntity userWantBlock = userRepo.findById(userId).orElse(null);
         if (userWantBlock == null) return;
         if (userBlockFriendRepo.findByUsernameAndUsernameBlock(userContext.getUsername(), userWantBlock.getUsername()) != null)
@@ -160,12 +162,12 @@ public class UserService {
         userBlockFriendEntity.setCreateAt(new Date());
         userBlockFriendRepo.save(userBlockFriendEntity);
 
-        channel.writeAndFlush(new SendBlockUserFriendPacket(userContext.getId(), 0).build().getPacket());
-        getUserFriendList(channel, UserConstant.TYPE_FRIEND_LIST_ACCEPTED);
+        userContext.getChannel().writeAndFlush(new SendBlockUserFriendPacket(userContext.getUserId(), 0).build().getPacket());
+        getUserFriendList(userContext, UserConstant.TYPE_FRIEND_LIST_ACCEPTED);
     }
 
-    public void unblockFriendUser(Channel channel, long userId) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void unblockFriendUser(UserContext userContext, long userId) {
+        
         UserEntity userWantBlock = userRepo.findById(userId).orElse(null);
         if (userWantBlock == null) return;
         UserBlockFriendEntity userBlockFriendEntity = userBlockFriendRepo.findByUsernameAndUsernameBlock(userContext.getUsername(), userWantBlock.getUsername());
@@ -173,7 +175,7 @@ public class UserService {
         userBlockFriendEntity.setStatus(0);
         userBlockFriendEntity.setUpdateAt(new Date());
         userBlockFriendRepo.save(userBlockFriendEntity);
-        getUserFriendList(channel, UserConstant.TYPE_FRIEND_LIST_BLOCKED);
+        getUserFriendList(userContext, UserConstant.TYPE_FRIEND_LIST_BLOCKED);
     }
 
     public List<UserEntity> getUserFriendByType(UserContext userContext, int type) {

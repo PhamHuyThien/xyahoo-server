@@ -4,6 +4,7 @@ import home.thienph.xyahoo_server.configs.PacketHandlerRegistry;
 import home.thienph.xyahoo_server.data.base.Packet;
 import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.managers.GameManager;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -24,25 +25,28 @@ public class ServerHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Packet packet) {
-        packetHandlerRegistry.handle(ctx, packet);
+        String sessionId = ctx.channel().id().asShortText();
+        UserContext userContext = gameManager.getUserContexts().get(sessionId);
+        packetHandlerRegistry.handle(userContext, packet);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        gameManager.getUserContexts().put(ctx.channel(), new UserContext());
+        Channel channel = ctx.channel();
+        String sessionId = channel.id().asShortText();
+        gameManager.getUserContexts().put(sessionId, new UserContext(channel));
         log.debug("Client connected: {}", ctx.channel().remoteAddress());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        gameManager.destroySessionUser(ctx.channel());
+        gameManager.destroySessionUserByChannelId(ctx.channel().id().asShortText());
         log.debug("Client disconnected: {}", ctx.channel().remoteAddress());
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        gameManager.destroySessionUser(ctx.channel());
-        ctx.close();
+        gameManager.destroySessionUserByChannelId(ctx.channel().id().asShortText());
         log.debug("Client disconnected: {}", ctx.channel().remoteAddress(), cause);
     }
 }

@@ -16,7 +16,6 @@ import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.managers.GameManager;
 import home.thienph.xyahoo_server.services.ui_component_handler.RoomCommandService;
 import home.thienph.xyahoo_server.utils.XPacket;
-import io.netty.channel.Channel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -34,11 +33,10 @@ public class ChatService {
     @Autowired
     RoomCommandService roomCommandService;
 
-    public void showFriendInRoom(Channel channel, String roomKey) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void showFriendInRoom(UserContext userContext, String roomKey) {
         RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
-        if (roomContext == null || !roomContext.getChannels().contains(channel)) {
-            XPacket.showSimpleDialog(channel, "Bạn chưa tham gia phòng nây");
+        if (roomContext == null || !roomContext.getUsers().contains(userContext)) {
+            XPacket.showSimpleDialog(userContext, "Bạn chưa tham gia phòng nây");
             return;
         }
         GameProcessPacketPipeline viewUserInRoomPipeline = GameProcessPacketPipeline.newInstance()
@@ -57,13 +55,11 @@ public class ChatService {
                     return new CreateButtonActionProcess(ScreenConstant.ROOM_LIST_FRIEND_SCREEN_ID, CreateContextMenuProcess.MENU_TYPE_RIGHT, "Đóng", action);
                 })
                 .endPipeline().build();
-        channel.writeAndFlush(viewUserInRoomPipeline.getPacket());
+        userContext.getChannel().writeAndFlush(viewUserInRoomPipeline.getPacket());
     }
 
-    public void roomClickInviteUser(Channel channel, String roomKey) {
-        if (!userIsOwnerRoom(gameManager.getUserContext(channel), roomKey)) return;
-        RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
-
+    public void roomClickInviteUser(UserContext userContext, String roomKey) {
+        if (!userIsOwnerRoom(userContext, roomKey)) return;
         GameProcessPacketPipeline.newInstance()
                 .addPipeline(() -> {
                     GameProcessPacketPipeline actionConfirmCreateRoom = GameProcessPacketPipeline.newInstance()
@@ -76,22 +72,22 @@ public class ChatService {
                 })
                 .addPipeline(() -> new ShowTextInputDialogProcess(ScreenConstant.DEFAULT_SCREEN_ID, ComponentConstant.ROOM_ADD_USER_IN_ROOM_COMPONENT_ID))
                 .addPipeline(new FocusComponentProcess(ScreenConstant.DEFAULT_SCREEN_ID, ComponentConstant.ROOM_ADD_USER_IN_ROOM_COMPONENT_ID))
-                .endPipeline().build().flushPipeline(channel);
+                .endPipeline().build().flushPipeline(userContext);
     }
 
-    public void acceptInviteJoinRoom(Channel channel, String roomKey, String password) {
+    public void acceptInviteJoinRoom(UserContext userContext, String roomKey, String password) {
         RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
         if (roomContext == null) return;
         if (roomContext.getRoom().getPassword() != null
                 && !roomContext.getRoom().getPassword().isEmpty()
                 && !roomContext.getRoom().getPassword().equals(password)) return;
-        roomCommandService.joinChatRoom(channel, roomKey);
+        roomCommandService.joinChatRoom(userContext, roomKey);
     }
 
     public boolean userIsOwnerRoom(UserContext userContext, String roomKey) {
         RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
         if (roomContext == null) return false;
-        return Objects.equals(roomContext.getRoom().getUserOwnerId(), userContext.getId());
+        return Objects.equals(roomContext.getRoom().getUserOwnerId(), userContext.getUserId());
     }
 
     public RoomContext getCurrentOwnerRoom(UserContext userContext) {

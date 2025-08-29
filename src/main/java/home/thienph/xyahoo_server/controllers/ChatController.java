@@ -17,7 +17,6 @@ import home.thienph.xyahoo_server.managers.GameManager;
 import home.thienph.xyahoo_server.services.ChatService;
 import home.thienph.xyahoo_server.services.ui_component_handler.HomeCommandService;
 import home.thienph.xyahoo_server.utils.XByteBuf;
-import io.netty.channel.Channel;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,86 +38,83 @@ public class ChatController {
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.SEND_MESSAGE)
-    public void chat(Channel channel, Packet packet) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void chat(UserContext userContext, Packet packet) {
+        
         String roomKey = XByteBuf.readString(packet.getPayload());
         String message = XByteBuf.readString(packet.getPayload());
 
         RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
         if (roomContext == null) return;
 
-        roomContext.getChannels().forEach(userJoinchannel -> {
+        roomContext.getUsers().forEach(userJoinUserContext -> {
             ReceiveChatRoomMessagePacket receiveChatRoomMessagePacket = new ReceiveChatRoomMessagePacket(userContext.getUsername(), message, 1);
-            userJoinchannel.writeAndFlush(receiveChatRoomMessagePacket.build().getPacket());
+            userJoinUserContext.getChannel().writeAndFlush(receiveChatRoomMessagePacket.build().getPacket());
         });
     }
 
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.LEAVE_CHAT_ROOM)
-    public void leaveChatRoom(Channel channel, Packet packet) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void leaveChatRoom(UserContext userContext, Packet packet) {
+        
         String roomKey = XByteBuf.readString(packet.getPayload());
 
         RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
         if (roomContext == null) return;
 
-        roomContext.getChannels().remove(channel);
         roomContext.getUsers().remove(userContext);
         roomContext.update();
 
-        homeCommandService.homeSelectRoom(channel, packet.getPayload());
+        homeCommandService.homeSelectRoom(userContext, packet.getPayload());
 
         GameProcessPacketPipeline.newInstance()
                 .addPipeline(new DestroyScreenProcess(ScreenConstant.ROOM_LIST_FRIEND_SCREEN_ID))
-                .endPipeline().build().flushPipeline(channel);
+                .endPipeline().build().flushPipeline(userContext);
     }
 
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.USER_CHAT)
-    public void userChat(Channel channel, Packet packet) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void userChat(UserContext userContext, Packet packet) {
         long userId = packet.getPayload().readLong();
         String message = XByteBuf.readString(packet.getPayload());
-        Channel userReceiver = gameManager.getChannelByUserId(userId);
+        UserContext userReceiver = gameManager.getUserContextByUserId(userId);
         if (userReceiver != null)
-            userReceiver.writeAndFlush(new UserChatPacket(userContext.getId(), message).build().getPacket());
+            userReceiver.getChannel().writeAndFlush(new UserChatPacket(userContext.getUserId(), message).build().getPacket());
     }
 
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.USER_BUZZ)
-    public void userBuzz(Channel channel, Packet packet) {
+    public void userBuzz(UserContext userContext, Packet packet) {
         long userId = packet.getPayload().readLong();
-        UserContext userContext = gameManager.getUserContext(channel);
-        Channel userReceiver = gameManager.getChannelByUserId(userId);
+        UserContext userReceiver = gameManager.getUserContextByUserId(userId);
         if (userReceiver != null)
-            userReceiver.writeAndFlush(new UserBuzzPacket(userContext.getId()).build().getPacket());
+            userReceiver.getChannel().writeAndFlush(new UserBuzzPacket(userContext.getUserId()).build().getPacket());
     }
 
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.VIEW_USER_IN_ROOM)
-    public void viewUserInRoom(Channel channel, Packet packet) {
+    public void viewUserInRoom(UserContext userContext, Packet packet) {
         String roomKey = XByteBuf.readString(packet.getPayload());
-        chatService.showFriendInRoom(channel, roomKey);
+        chatService.showFriendInRoom(userContext, roomKey);
     }
 
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.ROOM_INVITE_USER)
-    public void roomClickInviteUser(Channel channel, Packet packet) {
+    public void roomClickInviteUser(UserContext userContext, Packet packet) {
         String roomKey = XByteBuf.readString(packet.getPayload());
-        chatService.roomClickInviteUser(channel, roomKey);
+        chatService.roomClickInviteUser(userContext, roomKey);
     }
 
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.ACCEPT_INVITE_ROOM)
-    public void acceptInviteRoom(Channel channel, Packet packet) {
+    public void acceptInviteRoom(UserContext userContext, Packet packet) {
         String roomKey = XByteBuf.readString(packet.getPayload());
         String password = XByteBuf.readString(packet.getPayload());
-        chatService.acceptInviteJoinRoom(channel, roomKey, password);
+        chatService.acceptInviteJoinRoom(userContext, roomKey, password);
     }
 }

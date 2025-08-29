@@ -6,13 +6,13 @@ import home.thienph.xyahoo_server.entities.RoomGroupEntity;
 import io.netty.channel.Channel;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
 public class RoomContext {
     RoomGroupEntity roomGroup;
     RoomEntity room;
-    Set<Channel> channels;
     Set<UserContext> users;
     int roomStatus;
     String roomStatusText;
@@ -20,8 +20,8 @@ public class RoomContext {
 
 
     public void update() {
-        roomStatus = calculateRoomStatus(channels.size(), room.getMaxUser());
-        roomStatusText = channels.size() + "/" + room.getMaxUser();
+        roomStatus = calculateRoomStatus(users.size(), room.getMaxUser());
+        roomStatusText = users.size() + "/" + room.getMaxUser();
     }
 
     private int calculateRoomStatus(int current, int max) {

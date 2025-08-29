@@ -12,19 +12,17 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class RegisterReq implements MappingRequestPayload<RegisterReq> {
+public class RegisterReq {
 
     String username;
     String password;
     int partnerId;
     int appId;
 
-    @Override
-    public RegisterReq mapping(ByteBuf payload) {
+    public RegisterReq(ByteBuf payload) {
         this.username = XBase64.decodeWithReverse(XByteBuf.readString(payload));
         this.password = XBase64.decodeWithReverse(XByteBuf.readString(payload));
         this.partnerId = payload.readInt();
         this.appId = payload.readInt();
-        return this;
     }
 }

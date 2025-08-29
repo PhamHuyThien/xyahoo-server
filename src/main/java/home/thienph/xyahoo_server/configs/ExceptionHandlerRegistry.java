@@ -4,6 +4,7 @@ import home.thienph.xyahoo_server.anotations.ControllerAdvice;
 import home.thienph.xyahoo_server.anotations.ExceptionHandler;
 import home.thienph.xyahoo_server.data.base.Packet;
 import home.thienph.xyahoo_server.data.config.HandlerMethod;
+import home.thienph.xyahoo_server.data.users.UserContext;
 import io.netty.channel.Channel;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -37,13 +38,13 @@ public class ExceptionHandlerRegistry {
         }
     }
 
-    public void handleException(Channel channel, Packet packet, Throwable ex) {
+    public void handleException(UserContext userContext, Packet packet, Throwable ex) {
         for (Class<?> clazz = ex.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
             HandlerMethod handler = exceptionHandlers.get(clazz);
             if (handler == null) handler = exceptionHandlers.get(Throwable.class);
             if (handler != null) {
                 try {
-                    handler.getMethod().invoke(handler.getBean(), channel, packet, ex);
+                    handler.getMethod().invoke(handler.getBean(), userContext, packet, ex);
                     return;
                 } catch (Exception e) {
                     log.error("ControllerAdvice / Error invoking exception handler", e);

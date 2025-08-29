@@ -1,6 +1,7 @@
 package home.thienph.xyahoo_server.data.mapping;
 
 import home.thienph.xyahoo_server.data.base.Packet;
+import home.thienph.xyahoo_server.data.users.UserContext;
 import io.netty.channel.Channel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,7 +25,7 @@ public abstract class APacketPipeline {
 
     public abstract APacketPipeline build();
 
-    public void flush(Channel channel) {
-        channel.writeAndFlush(packet);
+    public void flush(UserContext userContext) {
+        userContext.getChannel().writeAndFlush(packet);
     }
 }

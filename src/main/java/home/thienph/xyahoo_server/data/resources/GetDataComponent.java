@@ -20,7 +20,7 @@ public class GetDataComponent {
     public static final boolean IS_REQUIRED_FALSE = false;
     public static final Object DEFAULT_VALUE_NULL = null;
     int dataType; //0 (INTEGER), 1 (STRING), 2 (BOOLEAN), 3 (ARRAY)
-    int sourceType; // 0: use default value, 1: use screen id value
+    int sourceType; // 0: use default value, 1: use screen userId value
     int screenId;
     int componentId;
     boolean isRequired;

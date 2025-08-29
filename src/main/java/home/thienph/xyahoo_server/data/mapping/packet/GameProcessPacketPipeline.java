@@ -3,6 +3,7 @@ package home.thienph.xyahoo_server.data.mapping.packet;
 import home.thienph.xyahoo_server.data.mapping.APacketPipeline;
 import home.thienph.xyahoo_server.data.mapping.IPipeline;
 import home.thienph.xyahoo_server.data.mapping.packet.game_process.IGameProcessPacketPipeline;
+import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -47,8 +48,8 @@ public class GameProcessPacketPipeline extends APacketPipeline implements IPipel
     }
 
     @Override
-    public void flushPipeline(Channel channel) {
-        channel.writeAndFlush(packet);
+    public void flushPipeline(UserContext userContext) {
+        userContext.getChannel().writeAndFlush(packet);
     }
 
     @Override

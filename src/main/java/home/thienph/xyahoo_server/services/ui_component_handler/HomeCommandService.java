@@ -10,6 +10,7 @@ import home.thienph.xyahoo_server.data.mapping.packet.game_process.create_compon
 import home.thienph.xyahoo_server.data.resources.ContextMenu;
 import home.thienph.xyahoo_server.data.resources.GetDataComponent;
 import home.thienph.xyahoo_server.data.resources.ListComp;
+import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.managers.GameManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -26,7 +27,7 @@ public class HomeCommandService {
     GameManager gameManager;
 
 
-    public void homeSelectRoom(Channel channel, ByteBuf payload) {
+    public void homeSelectRoom(UserContext userContext, ByteBuf payload) {
         GameProcessPacketPipeline gameProcessPacketPipeline = GameProcessPacketPipeline.newInstance()
                 .addPipeline(NewDialogProcess.createDefault(ScreenConstant.ROOM_SCREEN_TITLE, ScreenConstant.ROOM_SCREEN_ID))
                 .addPipeline(() -> {
@@ -79,6 +80,6 @@ public class HomeCommandService {
                 })
                 .addPipeline(new LoadingProcess(false))
                 .endPipeline().build();
-        channel.writeAndFlush(gameProcessPacketPipeline.getPacket());
+        userContext.getChannel().writeAndFlush(gameProcessPacketPipeline.getPacket());
     }
 }

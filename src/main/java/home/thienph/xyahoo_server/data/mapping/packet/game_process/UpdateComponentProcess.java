@@ -2,6 +2,7 @@ package home.thienph.xyahoo_server.data.mapping.packet.game_process;
 
 import home.thienph.xyahoo_server.data.mapping.IPipeline;
 import home.thienph.xyahoo_server.data.mapping.packet.game_process.update_component.AUpdateComponent;
+import home.thienph.xyahoo_server.data.users.UserContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 
@@ -43,6 +44,6 @@ public class UpdateComponentProcess implements IGameProcessPacketPipeline, IPipe
     }
 
     @Override
-    public void flushPipeline(Channel channel) {
+    public void flushPipeline(UserContext userContext) {
     }
 }

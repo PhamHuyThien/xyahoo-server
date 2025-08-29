@@ -12,19 +12,17 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class LoginReq implements MappingRequestPayload<LoginReq> {
+public class LoginReq {
 
     String username;
     String password;
     int type;
     String string;
 
-    @Override
-    public LoginReq mapping(ByteBuf payload) {
+    public LoginReq(ByteBuf payload) {
         this.username = XBase64.decodeWithReverse(XByteBuf.readString(payload));
         this.password = XBase64.decodeWithReverse(XByteBuf.readString(payload));
         this.type = payload.readInt();
         this.string = XByteBuf.readString(payload);
-        return this;
     }
 }

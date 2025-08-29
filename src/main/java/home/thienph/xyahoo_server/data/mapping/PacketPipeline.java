@@ -1,5 +1,6 @@
 package home.thienph.xyahoo_server.data.mapping;
 
+import home.thienph.xyahoo_server.data.users.UserContext;
 import io.netty.channel.Channel;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class PacketPipeline implements IPipeline<APacketPipeline, PacketPipeline
         return this;
     }
 
-    public void flushPipeline(Channel channel) {
-        packetPipeline.forEach(packet -> channel.writeAndFlush(packet.getPacket()));
+    public void flushPipeline(UserContext userContext) {
+        packetPipeline.forEach(packet -> userContext.getChannel().writeAndFlush(packet.getPacket()));
     }
 }

@@ -8,8 +8,8 @@ import home.thienph.xyahoo_server.constants.UserConstant;
 import home.thienph.xyahoo_server.data.base.Packet;
 import home.thienph.xyahoo_server.data.requests.AddFriendReq;
 import home.thienph.xyahoo_server.data.requests.RejectApproveFriendReq;
+import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.services.UserService;
-import io.netty.channel.Channel;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,49 +26,49 @@ public class UserController {
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.USER_LIST)
-    public void getUserFriendList(Channel channel, Packet packet) {
+    public void getUserFriendList(UserContext userContext, Packet packet) {
         int type = packet.getPayload().readInt();
-        userService.getUserFriendList(channel, type);
-        userService.updateStatusFriend(channel, type);
+        userService.getUserFriendList(userContext, type);
+        userService.updateStatusFriend(userContext, type);
     }
 
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.REQUEST_ADD_FRIEND)
-    public void requestAddFriend(Channel channel, Packet packet) {
-        AddFriendReq req = new AddFriendReq().mapping(packet.getPayload());
-        userService.requestAddFriend(channel, req);
+    public void requestAddFriend(UserContext userContext, Packet packet) {
+        AddFriendReq req = new AddFriendReq(packet.getPayload());
+        userService.requestAddFriend(userContext, req);
     }
 
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.REQUEST_REJECT_APPROVE_FRIEND)
-    public void requestRejectApproveFriend(Channel channel, Packet packet) {
+    public void requestRejectApproveFriend(UserContext userContext, Packet packet) {
         RejectApproveFriendReq req = new RejectApproveFriendReq(packet.getPayload());
-        userService.requestRejectApproveFriend(channel, req);
+        userService.requestRejectApproveFriend(userContext, req);
     }
 
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.DELETE_FRIEND_USER)
-    public void deleteFriendUser(Channel channel, Packet packet) {
+    public void deleteFriendUser(UserContext userContext, Packet packet) {
         long userId = packet.getPayload().readLong();
-        userService.deleteFriendUser(channel, userId);
+        userService.deleteFriendUser(userContext, userId);
     }
 
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.BLOCK_FRIEND_USER)
-    public void blockFriendUser(Channel channel, Packet packet) {
+    public void blockFriendUser(UserContext userContext, Packet packet) {
         long userId = packet.getPayload().readLong();
-        userService.blockFriendUser(channel, userId);
+        userService.blockFriendUser(userContext, userId);
     }
 
     @SneakyThrows
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.UNBLOCK_FRIEND_USER)
-    public void unblockFriendUser(Channel channel, Packet packet) {
+    public void unblockFriendUser(UserContext userContext, Packet packet) {
         long userId = packet.getPayload().readLong();
-        userService.unblockFriendUser(channel, userId);
+        userService.unblockFriendUser(userContext, userId);
     }
 }

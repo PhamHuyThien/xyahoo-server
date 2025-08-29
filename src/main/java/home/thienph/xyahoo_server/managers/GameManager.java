@@ -1,7 +1,5 @@
 package home.thienph.xyahoo_server.managers;
 
-import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
-import home.thienph.xyahoo_server.data.mapping.packet.game_process.DestroyScreenByTitleProcess;
 import home.thienph.xyahoo_server.data.users.ResourceContext;
 import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
@@ -14,7 +12,6 @@ import home.thienph.xyahoo_server.repositories.GameResourceRepo;
 import home.thienph.xyahoo_server.repositories.RoomGroupRepo;
 import home.thienph.xyahoo_server.repositories.RoomRepo;
 import home.thienph.xyahoo_server.utils.XImage;
-import io.netty.channel.Channel;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @Slf4j
 public class GameManager {
-    private final Map<Channel, UserContext> userContexts = new ConcurrentHashMap<>();
+    private final Map<String, UserContext> userContexts = new ConcurrentHashMap<>();
     private final List<GameHomeEntity> gameHomes = new ArrayList<>();
     private final List<RoomContext> roomContexts = new ArrayList<>();
     private final List<ResourceContext> resourceContexts = new ArrayList<>();
@@ -88,7 +85,6 @@ public class GameManager {
             RoomContext roomContext = new RoomContext();
             roomContext.setRoomGroup(roomGroup);
             roomContext.setRoom(room);
-            roomContext.setChannels(new HashSet<>());
             roomContext.setUsers(new HashSet<>());
             roomContext.setIcon(getResourceContextById(room.getIconId()).getResourceData());
             roomContext.update();
@@ -99,45 +95,20 @@ public class GameManager {
         log.info("Done load rooms, total: {}", this.roomContexts.size());
     }
 
-    public Optional<Channel> getOptionalChannelByUsername(String username) {
-        return Optional.ofNullable(getChannelByUsername(username));
+    public UserContext getUserContextByChannelId(String channelId) {
+        return userContexts.get(channelId);
     }
 
-    public Channel getChannelByUsername(String username) {
-        Map.Entry<Channel, UserContext> userContext = userContexts.entrySet().stream()
-                .filter(entry -> username.equals(entry.getValue().getUsername()))
-                .findFirst()
-                .orElse(null);
-        return userContext == null ? null : userContext.getKey();
-    }
-
-    public Channel getChannelByUserId(long userId) {
-        Map.Entry<Channel, UserContext> userContext = userContexts.entrySet().stream()
-                .filter(entry -> userId == entry.getValue().getId())
-                .findFirst()
-                .orElse(null);
-        return userContext == null ? null : userContext.getKey();
-    }
-
-    public UserContext getUserContext(Channel channel) {
-        return userContexts.get(channel);
-    }
-
-    public UserContext getUserContextById(long userId) {
-        return userContexts.values().stream().filter(userContext -> userId == userContext.getId()).findFirst().orElse(null);
+    public UserContext getUserContextByUserId(Long userId) {
+        return userContexts.values().stream()
+                .filter(userContext -> userId.equals(userContext.getUserId()))
+                .findFirst().orElse(null);
     }
 
     public UserContext getUserContextByUsername(String username) {
-        return userContexts.values().stream().filter(userContext -> username.equals(userContext.getUsername())).findFirst().orElse(null);
-    }
-
-    public void kickUserOutRoomByUserContext(RoomContext roomContext, UserContext userContext) {
-        Channel channel = getChannelByUsername(userContext.getUsername());
-        roomContext.getChannels().remove(channel);
-        roomContext.getUsers().remove(userContext);
-        GameProcessPacketPipeline.newInstance()
-                .addPipeline(new DestroyScreenByTitleProcess("P. " + roomContext.getRoom().getRoomName()))
-                .endPipeline().build().flushPipeline(channel);
+        return userContexts.values().stream()
+                .filter(userContext -> username.equals(userContext.getUsername()))
+                .findFirst().orElse(null);
     }
 
     public ResourceContext getResourceContextById(int resourceId) {
@@ -147,15 +118,18 @@ public class GameManager {
     }
 
     public RoomContext getRoomContextByRoomKey(String roomKey) {
-        return roomContexts.stream().filter(roomContext -> roomContext.getRoom().getRoomKey().equals(roomKey)).findFirst().orElse(null);
+        return roomContexts.stream()
+                .filter(roomContext -> roomContext.getRoom().getRoomKey().equals(roomKey))
+                .findFirst().orElse(null);
     }
 
-    public void destroySessionUser(Channel channel) {
-        userContexts.get(channel).destroy();
-        userContexts.remove(channel);
+    public void destroySessionUserByChannelId(String channelId) {
+        UserContext userContext = getUserContexts().get(channelId);
+        userContext.destroy();
+        userContexts.remove(channelId);
         roomContexts.forEach(roomContext -> {
-            roomContext.getChannels().remove(channel);
-            roomContext.getUsers().remove(getUserContext(channel));
+            if (roomContext.getUsers().remove(userContext))
+                roomContext.update();
         });
     }
 }

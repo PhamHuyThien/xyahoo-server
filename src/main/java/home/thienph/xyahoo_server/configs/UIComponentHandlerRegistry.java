@@ -2,6 +2,7 @@ package home.thienph.xyahoo_server.configs;
 
 import home.thienph.xyahoo_server.anotations.CommandMapping;
 import home.thienph.xyahoo_server.anotations.UIComponentController;
+import home.thienph.xyahoo_server.data.users.UserContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import jakarta.annotation.PostConstruct;
@@ -44,14 +45,14 @@ public class UIComponentHandlerRegistry {
     }
 
     @SneakyThrows
-    public void handle(Channel ctx, Integer commandId, ByteBuf payload) {
+    public void handle(UserContext userContext, Integer commandId, ByteBuf payload) {
         Method method = handlerMap.get(commandId);
         Object bean = beanMap.get(commandId);
         if (method != null) {
             try {
-                method.invoke(bean, ctx, payload);
+                method.invoke(bean, userContext, payload);
             } catch (InvocationTargetException e) {
-                exceptionHandlerRegistry.handleException(ctx, null, e.getCause());
+                exceptionHandlerRegistry.handleException(userContext, null, e.getCause());
             }
         } else {
             log.warn("CommandMapping / No handler found for commandId={}", commandId);

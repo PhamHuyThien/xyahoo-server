@@ -10,6 +10,7 @@ import home.thienph.xyahoo_server.data.mapping.packet.game_process.NewDialogProc
 import home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component.GridCreateComponent;
 import home.thienph.xyahoo_server.data.resources.GetDataComponent;
 import home.thienph.xyahoo_server.data.resources.GridComp;
+import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.managers.GameManager;
 import io.netty.channel.Channel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class HomeService {
     @Autowired
     GameManager gameManager;
 
-    public void showHome(Channel channel) {
+    public void showHome(UserContext userContext) {
         GameProcessPacketPipeline pipeline = GameProcessPacketPipeline.newInstance()
                 .addPipeline(() -> NewDialogProcess.createDefault(ScreenConstant.MAIN_SCREEN_TITLE, ScreenConstant.MAIN_SCREEN_ID))
                 .addPipeline(() -> {
@@ -36,6 +37,6 @@ public class HomeService {
                     return new CreateComponentProcess(ScreenConstant.MAIN_SCREEN_ID, ComponentConstant.MAIN_GRID_COMPONENT_ID, homeGridComp);
                 })
                 .endPipeline();
-        channel.writeAndFlush(pipeline.build().getPacket());
+        userContext.getChannel().writeAndFlush(pipeline.build().getPacket());
     }
 }

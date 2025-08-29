@@ -5,6 +5,7 @@ import home.thienph.xyahoo_server.constants.ClientCommandConst;
 import home.thienph.xyahoo_server.data.base.Packet;
 import home.thienph.xyahoo_server.data.requests.LoginReq;
 import home.thienph.xyahoo_server.data.requests.RegisterReq;
+import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.services.AuthService;
 import io.netty.channel.Channel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +17,14 @@ public class AuthController {
     AuthService authService;
 
     @PacketMapping(commandId = ClientCommandConst.LOGIN)
-    public void login(Channel channel, Packet packet) {
-        LoginReq req = new LoginReq().mapping(packet.getPayload());
-        authService.login(channel, req);
+    public void login(UserContext userContext, Packet packet) {
+        LoginReq req = new LoginReq(packet.getPayload());
+        authService.login(userContext, req);
     }
 
     @PacketMapping(commandId = ClientCommandConst.REGISTER)
-    public void register(Channel channel, Packet packet) {
-        RegisterReq req = new RegisterReq().mapping(packet.getPayload());
-        authService.register(channel, req);
+    public void register(UserContext userContext, Packet packet) {
+        RegisterReq req = new RegisterReq(packet.getPayload());
+        authService.register(userContext, req);
     }
 }

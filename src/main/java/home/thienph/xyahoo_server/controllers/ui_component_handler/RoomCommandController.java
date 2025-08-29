@@ -13,7 +13,6 @@ import home.thienph.xyahoo_server.services.ui_component_handler.RoomCommandServi
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import home.thienph.xyahoo_server.utils.XPacket;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,67 +36,67 @@ public class RoomCommandController {
 
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_SELECT_INDEX)
-    public void joinChatRoom(Channel channel, ByteBuf payload) {
+    public void joinChatRoom(UserContext userContext, ByteBuf payload) {
         String roomKey = XByteBuf.readString(payload);
         payload.readByte();
-        roomCommandService.joinChatRoom(channel, roomKey);
+        roomCommandService.joinChatRoom(userContext, roomKey);
     }
 
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_CREATE_NEW_ROOM)
-    public void roomCreateNewRoom(Channel channel, ByteBuf payload) {
+    public void roomCreateNewRoom(UserContext userContext, ByteBuf payload) {
         String roomName = XByteBuf.readString(payload).trim();
         payload.readByte();
-        roomCommandService.roomCreateNewRoom(channel, roomName);
+        roomCommandService.roomCreateNewRoom(userContext, roomName);
     }
 
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_REFRESH_ROOM)
-    public void refreshRoom(Channel channel, ByteBuf payload) {
+    public void refreshRoom(UserContext userContext, ByteBuf payload) {
         payload.readInt();
         payload.readByte();
-        homeCommandService.homeSelectRoom(channel, payload);
+        homeCommandService.homeSelectRoom(userContext, payload);
     }
 
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_FRIEND_LIST_IN_ROOM_ADD_FRIEND)
-    public void roomAddFriend(Channel channel, ByteBuf payload) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void roomAddFriend(UserContext userContext, ByteBuf payload) {
+        
         String username = XByteBuf.readString(payload);
         payload.readByte();
         if (username == null || username.trim().isEmpty()) return;
         if (userContext.getUsername().equals(username)) {
-            XPacket.showSimpleDialog(channel, "Không thể kết bạn với chinh mình");
+            XPacket.showSimpleDialog(userContext, "Không thể kết bạn với chinh mình");
             return;
         }
-        userService.requestAddFriend(channel, new AddFriendReq(username));
-        XPacket.showSimpleMarquee(channel, "Đã gửi yêu cầu kết bạn tới " + username);
+        userService.requestAddFriend(userContext, new AddFriendReq(username));
+        XPacket.showSimpleMarquee(userContext, "Đã gửi yêu cầu kết bạn tới " + username);
     }
 
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_FRIEND_LIST_IN_ROOM_REFRESH_LIST)
-    public void roomRefreshListUserInRoom(Channel channel, ByteBuf payload) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void roomRefreshListUserInRoom(UserContext userContext, ByteBuf payload) {
+        
         String username = XByteBuf.readString(payload);
         payload.readByte();
-        roomCommandService.refreshListUserInRoom(channel, username);
+        roomCommandService.refreshListUserInRoom(userContext, username);
     }
 
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_ADD_USER_IN_ROOM)
-    public void roomAddUserInRoom(Channel channel, ByteBuf payload) {
+    public void roomAddUserInRoom(UserContext userContext, ByteBuf payload) {
         String usernameInvite = XByteBuf.readString(payload).trim();
         payload.readByte();
-        roomCommandService.roomAddUserInRoom(channel, usernameInvite);
+        roomCommandService.roomAddUserInRoom(userContext, usernameInvite);
     }
 
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_FRIEND_LIST_IN_ROOM_KICK_USER)
-    public void roomKickUser(Channel channel, ByteBuf payload) {
-        UserContext userContext = gameManager.getUserContext(channel);
+    public void roomKickUser(UserContext userContext, ByteBuf payload) {
+        
         String usernameKick = XByteBuf.readString(payload).trim();
         payload.readByte();
-        roomCommandService.roomKickUserInRoom(channel, usernameKick);
-        roomCommandService.refreshListUserInRoom(channel, userContext.getUsername());
+        roomCommandService.roomKickUserInRoom(userContext, usernameKick);
+        roomCommandService.refreshListUserInRoom(userContext, userContext.getUsername());
     }
 }

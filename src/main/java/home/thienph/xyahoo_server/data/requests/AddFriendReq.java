@@ -9,12 +9,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddFriendReq implements MappingRequestPayload<AddFriendReq> {
+public class AddFriendReq {
     String username;
 
-    @Override
-    public AddFriendReq mapping(ByteBuf payload) {
+    public AddFriendReq(ByteBuf payload) {
         username = XByteBuf.readString(payload);
-        return this;
     }
 }

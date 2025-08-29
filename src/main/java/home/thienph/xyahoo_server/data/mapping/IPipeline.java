@@ -1,6 +1,6 @@
 package home.thienph.xyahoo_server.data.mapping;
 
-import io.netty.channel.Channel;
+import home.thienph.xyahoo_server.data.users.UserContext;
 
 public interface IPipeline<T, Q> {
     Q addPipeline(T data);
@@ -9,7 +9,7 @@ public interface IPipeline<T, Q> {
 
     Q endPipeline();
 
-    void flushPipeline(Channel channel);
+    void flushPipeline(UserContext userContext);
 
     @FunctionalInterface
     interface IPipelineGroup<T> {
