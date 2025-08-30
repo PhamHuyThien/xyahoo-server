@@ -14,15 +14,24 @@ import home.thienph.xyahoo_server.data.users.ResourceContext;
 import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.managers.GameManager;
+import home.thienph.xyahoo_server.repositories.RoomRepo;
+import home.thienph.xyahoo_server.services.ui_component_handler.HomeCommandService;
 import home.thienph.xyahoo_server.services.ui_component_handler.RoomCommandService;
+import home.thienph.xyahoo_server.utils.XDate;
 import home.thienph.xyahoo_server.utils.XPacket;
+import home.thienph.xyahoo_server.utils.XThread;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class ChatService {
@@ -32,6 +41,12 @@ public class ChatService {
     @Lazy
     @Autowired
     RoomCommandService roomCommandService;
+
+    @Autowired
+    RoomRepo roomRepo;
+
+    @Autowired
+    HomeCommandService homeCommandService;
 
     public void showFriendInRoom(UserContext userContext, String roomKey) {
         RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
@@ -163,7 +178,10 @@ public class ChatService {
                 .addPipeline(() -> {
                     var actionConfirmChangePasswordRoom = GameProcessPacketPipeline.newInstance()
                             .addPipeline(() -> {
-                                var componentsAction = List.of(GetDataComponent.createGetDataStringDefault(ScreenConstant.ROOM_SCREEN_ID, ComponentConstant.ROOM_INPUT_PASSWORD_COMPONENT_ID));
+                                var componentsAction = List.of(
+                                        GetDataComponent.createGetDataStringDefault(ScreenConstant.ROOM_SCREEN_ID, ComponentConstant.ROOM_INPUT_PASSWORD_COMPONENT_ID),
+                                        GetDataComponent.createGetDataStringDefault(ScreenConstant.ROOM_SCREEN_ID, ComponentConstant.ROOM_LIST_COMPONENT_ID)
+                                );
                                 return new GetDataUIComponentProcess(CommandGetUIConstant.ROOM_INPUT_PASSWORD_ROOM, componentsAction);
                             });
                     var popupDialogComponent = new PopupDialogCreateComponent("Vui lòng nhập mật khẩu phòng:", PopupDialogCreateComponent.DIALOG_TYPE_OK, actionConfirmChangePasswordRoom);
@@ -172,5 +190,42 @@ public class ChatService {
                 .addPipeline(() -> new ShowTextInputDialogProcess(ScreenConstant.ROOM_SCREEN_ID, ComponentConstant.ROOM_INPUT_PASSWORD_COMPONENT_ID))
                 .addPipeline(new FocusComponentProcess(ScreenConstant.ROOM_SCREEN_ID, ComponentConstant.ROOM_INPUT_PASSWORD_COMPONENT_ID))
                 .endPipeline().build().flushPipeline(userContext);
+    }
+
+    public void roomClickExtendRoom(UserContext userContext, String roomKey) {
+        if (!userIsOwnerRoom(userContext, roomKey)) return;
+        RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
+        Date extendDate = new Date(roomContext.getRoom().getExpireAt().getTime() + 1000 * 60 * 60 * 24);
+        roomContext.getRoom().setExpireAt(extendDate);
+        roomContext.getRoom().setUpdateAt(new Date());
+        roomRepo.save(roomContext.getRoom());
+        roomContext.update();
+        XPacket.showSimpleDialog(userContext, "Được gia hạn tới " + XDate.format(extendDate));
+    }
+
+    @SneakyThrows
+    public void roomClickDeleteRoom(UserContext userContext, String roomKey) {
+        if (!userIsOwnerRoom(userContext, roomKey)) return;
+        RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
+        if(roomContext == null) return;
+        roomContext.getRoom().setIsDelete(1);
+        roomContext.getRoom().setUpdateAt(new Date());
+        roomRepo.save(roomContext.getRoom());
+        roomContext.update();
+        gameManager.loadAllRoomContexts();
+
+        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+        roomContext.getUsers().forEach(user -> threadPoolExecutor.submit(() -> {
+            GameProcessPacketPipeline.newInstance()
+                    .addPipeline(new SwitchScreenProcess(ScreenConstant.ROOM_SCREEN_ID))
+                    .addPipeline(new DestroyScreenByTitleProcess("P. " + roomContext.getRoom().getRoomName())).endPipeline()
+                    .endPipeline().build().flushPipeline(user);
+            XThread.sleep(1000);
+            homeCommandService.homeSelectRoom(user, null);
+            XPacket.showSimpleMarquee(user, "Phòng " + roomContext.getRoom().getRoomName() + " đã bị xóa");
+        }));
+        threadPoolExecutor.shutdown();
+        threadPoolExecutor.awaitTermination(60, TimeUnit.SECONDS);
+        XPacket.showSimpleDialog(userContext, "Đã xóa phòng");
     }
 }

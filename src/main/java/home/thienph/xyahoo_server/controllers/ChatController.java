@@ -133,4 +133,20 @@ public class ChatController {
         String roomKey = XByteBuf.readString(packet.getPayload());
         chatService.roomClickChangePasswordRoom(userContext, roomKey);
     }
+
+    @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
+    @PacketMapping(commandId = ClientCommandConst.ROOM_EXTEND_ROOM)
+    public void roomClickExtendRoom(UserContext userContext, Packet packet) {
+        String roomKey = XByteBuf.readString(packet.getPayload());
+        chatService.roomClickExtendRoom(userContext, roomKey);
+    }
+
+    @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
+    @PacketMapping(commandId = ClientCommandConst.ROOM_DELETE_ROOM)
+    public void roomClickDeleteRoom(UserContext userContext, Packet packet) {
+        String roomKey = XByteBuf.readString(packet.getPayload());
+        chatService.roomClickDeleteRoom(userContext, roomKey);
+    }
 }

@@ -61,7 +61,7 @@ public class RoomCommandController {
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_FRIEND_LIST_IN_ROOM_ADD_FRIEND)
     public void roomAddFriend(UserContext userContext, ByteBuf payload) {
-        
+
         String username = XByteBuf.readString(payload);
         payload.readByte();
         if (username == null || username.trim().isEmpty()) return;
@@ -76,7 +76,7 @@ public class RoomCommandController {
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_FRIEND_LIST_IN_ROOM_REFRESH_LIST)
     public void roomRefreshListUserInRoom(UserContext userContext, ByteBuf payload) {
-        
+
         String username = XByteBuf.readString(payload);
         payload.readByte();
         roomCommandService.refreshListUserInRoom(userContext, username);
@@ -93,7 +93,7 @@ public class RoomCommandController {
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_FRIEND_LIST_IN_ROOM_KICK_USER)
     public void roomKickUser(UserContext userContext, ByteBuf payload) {
-        
+
         String usernameKick = XByteBuf.readString(payload).trim();
         payload.readByte();
         roomCommandService.roomKickUserInRoom(userContext, usernameKick);
@@ -118,9 +118,11 @@ public class RoomCommandController {
 
     @SneakyThrows
     @CommandMapping(commandId = CommandGetUIConstant.ROOM_INPUT_PASSWORD_ROOM)
-    public void roomLeaveRoom(UserContext userContext, ByteBuf payload) {
+    public void handlerRoomInputPassword(UserContext userContext, ByteBuf payload) {
+        String passwordRoom = XByteBuf.readString(payload).trim();
+        String roomKey = XByteBuf.readString(payload).trim();
         payload.readByte();
-//        roomCommandService.roomLeaveRoom(userContext);
+        roomCommandService.handlerRoomInputPassword(userContext, roomKey, passwordRoom);
     }
 
 

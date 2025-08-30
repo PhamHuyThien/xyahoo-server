@@ -78,9 +78,9 @@ public class GameManager {
 
     public void loadAllRoomContexts() {
         List<RoomContext> roomContexts = new ArrayList<>();
-        List<RoomEntity> rooms = roomRepo.findAllByExpireAtIsNullOrExpireAtAfter(new Date());
+        List<RoomEntity> rooms = roomRepo.findAllRoomOpen(new Date());
         for (RoomEntity room : rooms) {
-            RoomGroupEntity roomGroup = roomGroupRepo.findById(room.getRoomId()).orElse(null);
+            RoomGroupEntity roomGroup = roomGroupRepo.findById(room.getRoomGroupId()).orElse(null);
             if (roomGroup == null) continue;
             RoomContext roomContext = new RoomContext();
             roomContext.setRoomGroup(roomGroup);

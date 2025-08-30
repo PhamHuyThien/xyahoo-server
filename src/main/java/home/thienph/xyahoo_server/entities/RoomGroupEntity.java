@@ -27,4 +27,8 @@ public class RoomGroupEntity {
 
     @Column(name = "is_for_user")
     private Integer isForUser;
+
+    @Column(name = "status")
+    private Integer status;
+
 }

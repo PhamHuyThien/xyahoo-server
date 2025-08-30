@@ -43,7 +43,10 @@ public class RoomEntity {
     @Column(name = "expire_at")
     private Date expireAt;
 
-    @Column(name = "room_id")
-    private Long roomId;
+    @Column(name = "room_group_id")
+    private Long roomGroupId;
+
+    @Column(name = "is_delete")
+    private Integer isDelete;
 
 }
