@@ -47,10 +47,10 @@ public class ExceptionHandlerRegistry {
                     handler.getMethod().invoke(handler.getBean(), userContext, packet, ex);
                     return;
                 } catch (Exception e) {
-                    log.error("ControllerAdvice / Error invoking exception handler", e);
+                    log.error("handleException / Error invoking exception handler", e);
                 }
             }
         }
-        ex.printStackTrace();
+        log.error("handleException / packet commandId={}, typeId={} no exception handler", packet.getCommandId(), packet.getTypeId(), ex);
     }
 }

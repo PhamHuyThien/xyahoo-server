@@ -55,6 +55,8 @@ public class AuthService {
         resourceService.loadResource(userContext);
         userService.updateUserInfoAndFriendId(userContext);
         homeService.showHome(userContext);
+        userService.getUserFriendList(userContext, UserConstant.TYPE_FRIEND_LIST_ACCEPTED);
+        gameManager.showMessageOnOfflineForFriends(userContext, UserConstant.TYPE_STATUS_ONLINE);
     }
 
 

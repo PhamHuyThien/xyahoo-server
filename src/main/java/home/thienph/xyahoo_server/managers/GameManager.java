@@ -1,16 +1,12 @@
 package home.thienph.xyahoo_server.managers;
 
+import home.thienph.xyahoo_server.constants.UserConstant;
+import home.thienph.xyahoo_server.data.mapping.packet.UpdateUserIsOnlinePacket;
 import home.thienph.xyahoo_server.data.users.ResourceContext;
 import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
-import home.thienph.xyahoo_server.entities.GameHomeEntity;
-import home.thienph.xyahoo_server.entities.GameResourceEntity;
-import home.thienph.xyahoo_server.entities.RoomEntity;
-import home.thienph.xyahoo_server.entities.RoomGroupEntity;
-import home.thienph.xyahoo_server.repositories.GameHomeRepo;
-import home.thienph.xyahoo_server.repositories.GameResourceRepo;
-import home.thienph.xyahoo_server.repositories.RoomGroupRepo;
-import home.thienph.xyahoo_server.repositories.RoomRepo;
+import home.thienph.xyahoo_server.entities.*;
+import home.thienph.xyahoo_server.repositories.*;
 import home.thienph.xyahoo_server.utils.XImage;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
@@ -39,6 +35,8 @@ public class GameManager {
     GameResourceRepo gameResourceRepo;
     @Autowired
     GameHomeRepo gameHomeRepo;
+    @Autowired
+    UserFriendRepo userFriendRepo;
 
 
     @PostConstruct
@@ -125,11 +123,24 @@ public class GameManager {
 
     public void destroySessionUserByChannelId(String channelId) {
         UserContext userContext = getUserContexts().get(channelId);
+        showMessageOnOfflineForFriends(userContext, UserConstant.TYPE_STATUS_OFFLINE);
         userContext.destroy();
         userContexts.remove(channelId);
         roomContexts.forEach(roomContext -> {
             if (roomContext.getUsers().remove(userContext))
                 roomContext.update();
         });
+    }
+
+    public void showMessageOnOfflineForFriends(UserContext userContext, int typeStatus) {
+        if(userContext.getUser().getShowOnline() == 1){
+            List<UserEntity> listFriend = userFriendRepo.findAllUserFriendByUsername(userContext.getUsername());
+            listFriend.forEach(friend -> {
+                UserContext friendContext = getUserContextByUserId(friend.getId());
+                if (friendContext != null) {
+                    new UpdateUserIsOnlinePacket(userContext.getUserId(), typeStatus).build().flush(friendContext);
+                }
+            });
+        }
     }
 }

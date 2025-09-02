@@ -31,4 +31,6 @@ public class ClientCommandConst {
     public static final int ROOM_CHANGE_PASSWORD_ROOM = 4810;
     public static final int ROOM_EXTEND_ROOM = 4809;
     public static final int ROOM_DELETE_ROOM = 4812;
+    public static final int UPDATE_VIEW_ONLINE = 5000031;
+    public static final int UPDATE_STATUS_TEXT = 5000035;
 }

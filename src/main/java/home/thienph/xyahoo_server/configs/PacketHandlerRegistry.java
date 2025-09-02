@@ -70,8 +70,8 @@ public class PacketHandlerRegistry {
             try {
                 checkRole(userContext, key);
                 method.invoke(bean, userContext, packet);
-            } catch (InvocationTargetException e) {
-                exceptionHandlerRegistry.handleException(userContext, packet, e.getCause());
+            } catch (Throwable e) {
+                exceptionHandlerRegistry.handleException(userContext, packet, e);
             }
         } else {
             log.warn("PacketMapping / No handler found for commandId={}, typeId={}", commandId, typeId);

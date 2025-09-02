@@ -38,7 +38,7 @@ public class UserService {
     UserBlockFriendRepo userBlockFriendRepo;
 
     public void getUserFriendList(UserContext userContext, int type) { //1 banbe, 2 tu choi, 3 moi ket ban
-        
+
         List<UserFriendDto> userFriends = getUserFriendByType(userContext, type)
                 .stream().map(UserFriendDto::new)
                 .toList();
@@ -46,13 +46,14 @@ public class UserService {
     }
 
     public void updateStatusFriend(UserContext userContext, int type) {
-        
+
         List<UserFriendDto> userFriends = getUserFriendByType(userContext, type)
                 .stream().map(UserFriendDto::new)
                 .toList();
         List<UserFriendDto> usersFriendOnline = new ArrayList<>();
         for (UserFriendDto userFriendDto : userFriends) {
-            if (gameManager.getUserContextByUsername(userFriendDto.getUsername()) != null) {
+            UserContext user = gameManager.getUserContextByUsername(userFriendDto.getUsername());
+            if (user != null && user.getUser().getShowOnline() == 1) {
                 usersFriendOnline.add(userFriendDto);
             }
         }
@@ -65,17 +66,17 @@ public class UserService {
     }
 
     public void requestAddFriend(UserContext userContext, AddFriendReq req) {
-        
+
         if (userContext == null || req == null || Strings.isBlank(req.getUsername())) return;
         UserEntity userWantFriend = userRepo.findByUsername(req.getUsername()).orElse(null);
         if (userWantFriend == null) return;
         if (userFriendRequestRepo.findByUsernameAndUsernameRequest(userContext.getUsername(), userWantFriend.getUsername()) != null
-            || userFriendRequestRepo.findByUsernameAndUsernameRequest(userWantFriend.getUsername(), userContext.getUsername()) != null) {
+                || userFriendRequestRepo.findByUsernameAndUsernameRequest(userWantFriend.getUsername(), userContext.getUsername()) != null) {
             XPacket.showSimpleDialog(userContext, "Bạn hoặc đối phương đã gửi yêu cầu kết bạn");
             return;
         }
         if (userBlockFriendRepo.findByUsernameAndUsernameBlock(userContext.getUsername(), userWantFriend.getUsername()) != null
-            || userBlockFriendRepo.findByUsernameAndUsernameBlock(userWantFriend.getUsername(), userContext.getUsername()) != null){
+                || userBlockFriendRepo.findByUsernameAndUsernameBlock(userWantFriend.getUsername(), userContext.getUsername()) != null) {
             XPacket.showSimpleDialog(userContext, "Không thể kết bạn với người này");
             return;
         }
@@ -95,7 +96,7 @@ public class UserService {
     }
 
     public void requestRejectApproveFriend(UserContext userContext, RejectApproveFriendReq req) {
-        
+
         UserEntity userWantRejectApprove = userRepo.findById(req.getUserId()).orElse(null);
         if (userWantRejectApprove == null) return;
 
@@ -123,7 +124,7 @@ public class UserService {
     }
 
     public void deleteFriendUser(UserContext userContext, long userId) {
-        
+
 
         UserEntity userWantDeleteFriend = userRepo.findById(userId).orElse(null);
         if (userWantDeleteFriend == null) return;
@@ -144,7 +145,7 @@ public class UserService {
     }
 
     public void blockFriendUser(UserContext userContext, long userId) {
-        
+
         UserEntity userWantBlock = userRepo.findById(userId).orElse(null);
         if (userWantBlock == null) return;
         if (userBlockFriendRepo.findByUsernameAndUsernameBlock(userContext.getUsername(), userWantBlock.getUsername()) != null)
@@ -167,7 +168,7 @@ public class UserService {
     }
 
     public void unblockFriendUser(UserContext userContext, long userId) {
-        
+
         UserEntity userWantBlock = userRepo.findById(userId).orElse(null);
         if (userWantBlock == null) return;
         UserBlockFriendEntity userBlockFriendEntity = userBlockFriendRepo.findByUsernameAndUsernameBlock(userContext.getUsername(), userWantBlock.getUsername());
@@ -188,5 +189,24 @@ public class UserService {
             userFriends = userFriendRequestRepo.findAllUserFriendByUsername(userContext.getUsername());
         }
         return userFriends;
+    }
+
+    public void updateStatusText(UserContext userContext, String statusText) {
+        userContext.getUser().setStatusText(statusText);
+        if (userContext.getUser().getShowOnline() == 1) {
+            List<UserEntity> listFriend = userFriendRepo.findAllUserFriendByUsername(userContext.getUsername());
+            listFriend.forEach(friend -> {
+                UserContext friendContext = gameManager.getUserContextByUserId(friend.getId());
+                if (friendContext != null) {
+                    new UpdateStatusTextUserPacket(userContext.getUserId(), statusText).build().flush(friendContext);
+                }
+            });
+        }
+        userRepo.save(userContext.getUser());
+    }
+
+    public void updateViewOnline(UserContext userContext, int showOnline) {
+        userContext.getUser().setShowOnline(showOnline);
+        userRepo.save(userContext.getUser());
     }
 }

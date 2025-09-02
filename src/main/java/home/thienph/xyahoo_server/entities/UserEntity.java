@@ -43,4 +43,6 @@ public class UserEntity {
     @Column(name = "status_text")
     private String statusText;
 
+    @Column(name = "show_online")
+    private Integer showOnline;
 }

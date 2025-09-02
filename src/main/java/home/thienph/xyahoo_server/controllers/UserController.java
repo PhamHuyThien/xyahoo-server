@@ -10,6 +10,7 @@ import home.thienph.xyahoo_server.data.requests.AddFriendReq;
 import home.thienph.xyahoo_server.data.requests.RejectApproveFriendReq;
 import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.services.UserService;
+import home.thienph.xyahoo_server.utils.XByteBuf;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -70,5 +71,21 @@ public class UserController {
     public void unblockFriendUser(UserContext userContext, Packet packet) {
         long userId = packet.getPayload().readLong();
         userService.unblockFriendUser(userContext, userId);
+    }
+
+    @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
+    @PacketMapping(commandId = ClientCommandConst.UPDATE_VIEW_ONLINE)
+    public void updateViewOnline(UserContext userContext, Packet packet) {
+        int showOnline = packet.getPayload().readInt();
+        userService.updateViewOnline(userContext, showOnline);
+    }
+
+    @SneakyThrows
+    @HasRole({UserConstant.ROLE_USER})
+    @PacketMapping(commandId = ClientCommandConst.UPDATE_STATUS_TEXT)
+    public void updateStatusText(UserContext userContext, Packet packet) {
+        String statusText = XByteBuf.readString(packet.getPayload());
+        userService.updateStatusText(userContext, statusText);
     }
 }
