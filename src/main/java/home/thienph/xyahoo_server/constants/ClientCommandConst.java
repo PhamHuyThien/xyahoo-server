@@ -33,4 +33,5 @@ public class ClientCommandConst {
     public static final int ROOM_DELETE_ROOM = 4812;
     public static final int UPDATE_VIEW_ONLINE = 5000031;
     public static final int UPDATE_STATUS_TEXT = 5000035;
+    public static final int SHOW_APP_INFO = 11712001;
 }

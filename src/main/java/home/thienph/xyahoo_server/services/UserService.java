@@ -100,6 +100,8 @@ public class UserService {
         UserEntity userWantRejectApprove = userRepo.findById(req.getUserId()).orElse(null);
         if (userWantRejectApprove == null) return;
 
+        UserContext userWantRejectApproveContext = gameManager.getUserContextByUserId(userWantRejectApprove.getId());
+
         UserFriendRequestEntity usersFriendRequest = userFriendRequestRepo.findByUsernameAndUsernameRequest(userContext.getUsername(), userWantRejectApprove.getUsername());
         if (usersFriendRequest == null) return;
         if (req.isApprove()) {
@@ -116,6 +118,9 @@ public class UserService {
             usersFriendEntity.setStatus(1);
             usersFriendEntity.setCreateAt(new Date());
             userFriendRepo.save(usersFriendEntity);
+
+//            new HandlerFriendAcceptPacket(true, userWantRejectApprove.getId(), userWantRejectApprove.getUsername(), 0, 1)
+//                    .build().flush(userWantRejectApproveContext);
         }
         usersFriendRequest.setStatus(0);
         usersFriendRequest.setUpdateAt(new Date());
@@ -141,7 +146,9 @@ public class UserService {
             usersFriendEntity.setUpdateAt(new Date());
             userFriendRepo.save(usersFriendEntity);
         }
-        getUserFriendList(userContext, UserConstant.TYPE_FRIEND_LIST_ACCEPTED);
+
+        new PushRemoveFriendPacket(userWantDeleteFriend.getId(), 1).build().flush(userContext);
+//        getUserFriendList(userContext, UserConstant.TYPE_FRIEND_LIST_ACCEPTED);
     }
 
     public void blockFriendUser(UserContext userContext, long userId) {

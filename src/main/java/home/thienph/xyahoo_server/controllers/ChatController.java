@@ -9,7 +9,6 @@ import home.thienph.xyahoo_server.data.base.Packet;
 import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
 import home.thienph.xyahoo_server.data.mapping.packet.ReceiveChatRoomMessagePacket;
 import home.thienph.xyahoo_server.data.mapping.packet.UserBuzzPacket;
-import home.thienph.xyahoo_server.data.mapping.packet.UserChatPacket;
 import home.thienph.xyahoo_server.data.mapping.packet.game_process.DestroyScreenProcess;
 import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
@@ -39,7 +38,7 @@ public class ChatController {
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.SEND_MESSAGE)
     public void chat(UserContext userContext, Packet packet) {
-        
+
         String roomKey = XByteBuf.readString(packet.getPayload());
         String message = XByteBuf.readString(packet.getPayload());
 
@@ -56,7 +55,7 @@ public class ChatController {
     @HasRole({UserConstant.ROLE_USER})
     @PacketMapping(commandId = ClientCommandConst.LEAVE_CHAT_ROOM)
     public void leaveChatRoom(UserContext userContext, Packet packet) {
-        
+
         String roomKey = XByteBuf.readString(packet.getPayload());
 
         RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
@@ -78,9 +77,7 @@ public class ChatController {
     public void userChat(UserContext userContext, Packet packet) {
         long userId = packet.getPayload().readLong();
         String message = XByteBuf.readString(packet.getPayload());
-        UserContext userReceiver = gameManager.getUserContextByUserId(userId);
-        if (userReceiver != null)
-            userReceiver.getChannel().writeAndFlush(new UserChatPacket(userContext.getUserId(), message).build().getPacket());
+        chatService.userChat(userContext, userId, message);
     }
 
     @SneakyThrows

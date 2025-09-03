@@ -6,6 +6,7 @@ import home.thienph.xyahoo_server.configs.UIComponentHandlerRegistry;
 import home.thienph.xyahoo_server.constants.ClientCommandConst;
 import home.thienph.xyahoo_server.constants.UserConstant;
 import home.thienph.xyahoo_server.data.base.Packet;
+import home.thienph.xyahoo_server.data.mapping.packet.ShowAppInfoPacket;
 import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.utils.XByteBuf;
 import io.netty.buffer.ByteBuf;
@@ -32,5 +33,11 @@ public class MainController {
     public void openScreenById(UserContext userContext, Packet packet) {
         int screenId = packet.getPayload().readInt();
         uiComponentHandlerRegistry.handle(userContext, screenId, packet.getPayload());
+    }
+
+    @PacketMapping(commandId = ClientCommandConst.SHOW_APP_INFO)
+    @HasRole({UserConstant.ROLE_USER})
+    public void showAppInfo(UserContext userContext, Packet packet) {
+        new ShowAppInfoPacket("XYahoo 107 by ThienPH!").build().flush(userContext);
     }
 }

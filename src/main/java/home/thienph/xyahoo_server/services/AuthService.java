@@ -1,5 +1,6 @@
 package home.thienph.xyahoo_server.services;
 
+import home.thienph.xyahoo_server.constants.NettyAttributes;
 import home.thienph.xyahoo_server.constants.UserConstant;
 import home.thienph.xyahoo_server.data.mapping.packet.LoginFailedPacket;
 import home.thienph.xyahoo_server.data.mapping.packet.RegisterSuccessPacket;
@@ -9,7 +10,6 @@ import home.thienph.xyahoo_server.data.users.UserContext;
 import home.thienph.xyahoo_server.entities.UserEntity;
 import home.thienph.xyahoo_server.managers.GameManager;
 import home.thienph.xyahoo_server.repositories.UserRepo;
-import io.netty.channel.Channel;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +34,8 @@ public class AuthService {
     UserService userService;
     @Autowired
     UserRepo userRepo;
+    @Autowired
+    private ChatService chatService;
 
     @SneakyThrows
     public void login(UserContext userContext, LoginReq loginReq) {
@@ -51,12 +53,14 @@ public class AuthService {
         userContext.setUserId(userEntityOptional.get().getId());
         userContext.setUsername(userEntityOptional.get().getUsername());
         userContext.setLogin(true);
+        userContext.getChannel().attr(NettyAttributes.USERNAME).set(userContext.getUsername());
 
         resourceService.loadResource(userContext);
         userService.updateUserInfoAndFriendId(userContext);
         homeService.showHome(userContext);
         userService.getUserFriendList(userContext, UserConstant.TYPE_FRIEND_LIST_ACCEPTED);
         gameManager.showMessageOnOfflineForFriends(userContext, UserConstant.TYPE_STATUS_ONLINE);
+        chatService.loadOfflineMessages(userContext);
     }
 
 

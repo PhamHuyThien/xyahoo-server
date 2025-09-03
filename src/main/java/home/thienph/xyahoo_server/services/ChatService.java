@@ -4,12 +4,15 @@ import home.thienph.xyahoo_server.constants.CommandGetUIConstant;
 import home.thienph.xyahoo_server.constants.ComponentConstant;
 import home.thienph.xyahoo_server.constants.ScreenConstant;
 import home.thienph.xyahoo_server.data.mapping.packet.GameProcessPacketPipeline;
+import home.thienph.xyahoo_server.data.mapping.packet.OfflineMessagePacket;
+import home.thienph.xyahoo_server.data.mapping.packet.UserChatPacket;
 import home.thienph.xyahoo_server.data.mapping.packet.game_process.*;
 import home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component.ListCreateComponent;
 import home.thienph.xyahoo_server.data.mapping.packet.game_process.create_component.PopupDialogCreateComponent;
 import home.thienph.xyahoo_server.data.resources.ContextMenu;
 import home.thienph.xyahoo_server.data.resources.GetDataComponent;
 import home.thienph.xyahoo_server.data.resources.ListComp;
+import home.thienph.xyahoo_server.data.resources.MessageOffline;
 import home.thienph.xyahoo_server.data.users.ResourceContext;
 import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
@@ -207,7 +210,7 @@ public class ChatService {
     public void roomClickDeleteRoom(UserContext userContext, String roomKey) {
         if (!userIsOwnerRoom(userContext, roomKey)) return;
         RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
-        if(roomContext == null) return;
+        if (roomContext == null) return;
         roomContext.getRoom().setIsDelete(1);
         roomContext.getRoom().setUpdateAt(new Date());
         roomRepo.save(roomContext.getRoom());
@@ -227,5 +230,35 @@ public class ChatService {
         threadPoolExecutor.shutdown();
         threadPoolExecutor.awaitTermination(60, TimeUnit.SECONDS);
         XPacket.showSimpleDialog(userContext, "Đã xóa phòng");
+    }
+
+    public void userChat(UserContext userContext, long userId, String message) {
+        UserContext userReceiver = gameManager.getUserContextByUserId(userId);
+        if (userReceiver != null)
+            userReceiver.getChannel().writeAndFlush(new UserChatPacket(userContext.getUserId(), message).build().getPacket());
+        else
+            addOfflineMessage(userContext, userId, message);
+    }
+
+    public void addOfflineMessage(UserContext userContext, Long userId, String message) {
+        List<MessageOffline> messagesOffline = gameManager.getOfflineMessages().get(userId);
+        if (messagesOffline == null) messagesOffline = new ArrayList<>();
+        messagesOffline.add(new MessageOffline(
+                userContext.getUserId(),
+                userContext.getUsername(),
+                XDate.format(new Date(), XDate.HHmmddMM),
+                message));
+        gameManager.getOfflineMessages().put(userId, messagesOffline);
+    }
+
+    public void loadOfflineMessages(UserContext userContext) {
+        List<MessageOffline> messagesOffline = gameManager.getOfflineMessages().get(userContext.getUserId());
+        if (messagesOffline == null || messagesOffline.isEmpty()) return;
+        new OfflineMessagePacket(messagesOffline).build().flush(userContext);
+        clearOfflineMessages(userContext);
+    }
+
+    public void clearOfflineMessages(UserContext userContext) {
+        gameManager.getOfflineMessages().get(userContext.getUserId()).clear();
     }
 }

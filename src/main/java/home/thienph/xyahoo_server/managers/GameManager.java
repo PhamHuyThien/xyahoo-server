@@ -2,6 +2,7 @@ package home.thienph.xyahoo_server.managers;
 
 import home.thienph.xyahoo_server.constants.UserConstant;
 import home.thienph.xyahoo_server.data.mapping.packet.UpdateUserIsOnlinePacket;
+import home.thienph.xyahoo_server.data.resources.MessageOffline;
 import home.thienph.xyahoo_server.data.users.ResourceContext;
 import home.thienph.xyahoo_server.data.users.RoomContext;
 import home.thienph.xyahoo_server.data.users.UserContext;
@@ -26,6 +27,7 @@ public class GameManager {
     private final List<GameHomeEntity> gameHomes = new ArrayList<>();
     private final List<RoomContext> roomContexts = new ArrayList<>();
     private final List<ResourceContext> resourceContexts = new ArrayList<>();
+    private final Map<Long, List<MessageOffline>> offlineMessages = new ConcurrentHashMap<>();
 
     @Autowired
     RoomGroupRepo roomGroupRepo;
@@ -104,9 +106,13 @@ public class GameManager {
     }
 
     public UserContext getUserContextByUsername(String username) {
+        return getUserContextOptByUsername(username).orElse(null);
+    }
+
+    public Optional<UserContext> getUserContextOptByUsername(String username) {
         return userContexts.values().stream()
                 .filter(userContext -> username.equals(userContext.getUsername()))
-                .findFirst().orElse(null);
+                .findFirst();
     }
 
     public ResourceContext getResourceContextById(int resourceId) {
@@ -123,17 +129,19 @@ public class GameManager {
 
     public void destroySessionUserByChannelId(String channelId) {
         UserContext userContext = getUserContexts().get(channelId);
-        showMessageOnOfflineForFriends(userContext, UserConstant.TYPE_STATUS_OFFLINE);
+        if (userContext.isLogin()) {
+            showMessageOnOfflineForFriends(userContext, UserConstant.TYPE_STATUS_OFFLINE);
+            userContexts.remove(channelId);
+            roomContexts.forEach(roomContext -> {
+                if (roomContext.getUsers().remove(userContext))
+                    roomContext.update();
+            });
+        }
         userContext.destroy();
-        userContexts.remove(channelId);
-        roomContexts.forEach(roomContext -> {
-            if (roomContext.getUsers().remove(userContext))
-                roomContext.update();
-        });
     }
 
     public void showMessageOnOfflineForFriends(UserContext userContext, int typeStatus) {
-        if(userContext.getUser().getShowOnline() == 1){
+        if (userContext.getUser().getShowOnline() == 1) {
             List<UserEntity> listFriend = userFriendRepo.findAllUserFriendByUsername(userContext.getUsername());
             listFriend.forEach(friend -> {
                 UserContext friendContext = getUserContextByUserId(friend.getId());

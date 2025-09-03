@@ -1,9 +1,8 @@
 package home.thienph.xyahoo_server.configs;
 
+import home.thienph.xyahoo_server.managers.GameManager;
 import jakarta.annotation.PostConstruct;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +18,10 @@ public class AppContext {
     @PostConstruct
     public void init() {
         context = applicationContext;
+    }
+
+    public static GameManager getGameManager() {
+        return context.getBean(GameManager.class);
     }
 
 }

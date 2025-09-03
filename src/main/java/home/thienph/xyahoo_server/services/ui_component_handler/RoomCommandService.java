@@ -72,6 +72,11 @@ public class RoomCommandService {
         RoomContext roomContext = gameManager.getRoomContextByRoomKey(roomKey);
         if (roomContext == null) return;
 
+        if (roomContext.getUsers().size() >= roomContext.getRoom().getMaxUser()) {
+            XPacket.showSimpleDialog(userContext, "Phòng đã đạt số lượng người tối đa");
+            return;
+        }
+
         if (roomContext.getRoom().getPassword() != null
                 && !roomContext.getRoom().getPassword().isEmpty()
                 && !roomContext.getRoom().getUserOwnerId().equals(userContext.getUserId())

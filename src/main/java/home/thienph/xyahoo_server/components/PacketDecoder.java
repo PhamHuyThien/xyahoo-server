@@ -1,6 +1,7 @@
 package home.thienph.xyahoo_server.components;
 
 import home.thienph.xyahoo_server.data.base.Packet;
+import home.thienph.xyahoo_server.utils.XPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -16,7 +17,12 @@ public class PacketDecoder extends ByteToMessageDecoder {
         int type = in.readInt();
         ByteBuf payload = in.readBytes(in.readableBytes()); // copy payload
         Packet packet = new Packet(command, type, payload);
-        log.debug("[{}] [IN] {}", ctx.channel().id(), packet);
+        log.debug("[{}] [{}] [IN] commandId= {} typeId= {} payloadSize= {}",
+                ctx.channel().id(),
+                XPacket.getUsernameByChannel(ctx.channel()),
+                command,
+                type,
+                payload.readableBytes());
         out.add(packet);
     }
 }

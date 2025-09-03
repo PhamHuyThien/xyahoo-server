@@ -9,7 +9,8 @@ import java.util.Date;
  */
 public class XDate {
 
-    private static final String DEFAULT_FORMAT = "dd-MM-yyyy HH:mm:ss";
+    public static final String DEFAULT_FORMAT = "dd-MM-yyyy HH:mm:ss";
+    public static final String HHmmddMM = "HH:mm dd-MM";
 
     /**
      * Format Date -> String
